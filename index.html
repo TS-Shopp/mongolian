@@ -181,9 +181,9 @@
         }
 
         .price-details {
-            text-align: center;
+            text-align: left;
             background-color: #f1f5f9;
-            padding: 15px;
+            padding: 15px 20px;
             border-radius: 14px;
             margin-bottom: 20px;
         }
@@ -191,24 +191,36 @@
         .price-text {
             font-weight: 700;
             color: var(--primary);
-            font-size: 16px;
+            font-size: 18px;
             margin: 0 0 5px 0;
+            text-align: center;
         }
 
         .product-views-text {
             color: var(--accent);
             font-size: 13px;
             font-weight: 600;
-            margin: 5px 0;
+            margin: 5px 0 12px 0;
+            text-align: center;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #475569;
         }
 
         .total-text {
             color: var(--success);
             font-size: 18px;
             font-weight: 700;
-            margin: 8px 0 0 0;
+            margin: 10px 0 0 0;
             border-top: 1px dashed #cbd5e1;
-            padding-top: 8px;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
         }
 
         .modal-bank-card {
@@ -309,7 +321,19 @@
             <div class="price-details">
                 <p class="price-text" id="modalProductTitle"></p>
                 <p class="product-views-text" id="modalProductViews">👀 Үзсэн тоо: 0</p>
-                <p class="total-text" id="modalTotalWithShipping"></p>
+                
+                <div class="price-row">
+                    <span>Барааны үнэ:</span>
+                    <span id="modalProductPriceOnly" style="font-weight: 600;">0₮</span>
+                </div>
+                <div class="price-row">
+                    <span>Хүргэлтийн төлбөр:</span>
+                    <span style="font-weight: 600; color: var(--accent);">+3,000₮</span>
+                </div>
+                <div class="total-text">
+                    <span>Нийт шилжүүлэх дүн:</span>
+                    <span id="modalTotalWithShipping">0₮</span>
+                </div>
             </div>
             
             <div class="modal-bank-card">
@@ -406,7 +430,8 @@
             var totalWithShipping = numericPrice + 3000;
             
             document.getElementById("modalProductTitle").innerText = name;
-            document.getElementById("modalTotalWithShipping").innerText = "Нийт шилжүүлэх дүн: " + totalWithShipping.toLocaleString() + "₮ (Хүргэлттэй)";
+            document.getElementById("modalProductPriceOnly").innerText = numericPrice.toLocaleString() + "₮";
+            document.getElementById("modalTotalWithShipping").innerText = totalWithShipping.toLocaleString() + "₮";
             
             var productViewsRef = database.ref('products/' + prodId + '/views');
             productViewsRef.transaction(function(currentViews) {
