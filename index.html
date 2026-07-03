@@ -360,6 +360,7 @@
 
         window.onload = function() {
             var grid = document.getElementById("homeProductGrid");
+            if (!grid) return;
             
             database.ref('products').on('value', function(snapshot) {
                 grid.innerHTML = ""; 
@@ -380,15 +381,14 @@
                     var card = document.createElement("div");
                     card.className = "product-card";
                     
-                    var hitBadgeHTML = views >= 5 ? <div class="hit-badge">🔥 ХИТ БАРАА</div> : '';
+                    var hitBadgeHTML = views >= 5 ? '<div class="hit-badge">🔥 ХИТ БАРАА</div>' : '';
                     
-                    card.innerHTML = `
-                        ${hitBadgeHTML}
-                        <img src="${prod.image || 'https://via.placeholder.com/280x220'}" alt="${prod.name}">
-                        <h3 class="product-title">${prod.name}</h3>
-                        <p class="product-price">${numericPrice.toLocaleString()}₮</p>
-                        <button class="btn-buy" onclick="window.openModal('${prodId}', '${prod.name}', '${numericPrice}')">Захиалах</button>
-                    `;
+                    card.innerHTML = hitBadgeHTML +
+                        '<img src="' + (prod.image || 'https://via.placeholder.com/280x220') + '" alt="' + prod.name + '">' +
+                        '<h3 class="product-title">' + prod.name + '</h3>' +
+                        '<p class="product-price">' + numericPrice.toLocaleString() + '₮</p>' +
+                        '<button class="btn-buy" onclick="window.openModal(\'' + prodId + '\', \'' + prod.name + '\', \'' + numericPrice + '\')">Захиалах</button>';
+                    
                     grid.appendChild(card);
                 });
             });
@@ -412,11 +412,11 @@
             });
                 
             document.getElementById("orderModal").style.display = "flex";
-        }
+        };
 
         window.closeModal = function() {
             document.getElementById("orderModal").style.display = "none";
-        }
+        };
 
         window.copyText = function(elementId, btnElement) {
             var text = document.getElementById(elementId).innerText;
@@ -432,7 +432,7 @@
                     btnElement.style.color = "initial";
                 }, 2000);
             });
-        }
+        };
     </script>
 </body>
 </html>
