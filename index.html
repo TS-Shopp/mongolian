@@ -125,6 +125,12 @@
             font-size: 15px;
             margin: 4px 0;
         }
+        .product-views-text {
+            color: #3498db;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
         .shipping-text {
             color: #7f8c8d;
             font-size: 13px;
@@ -237,6 +243,7 @@
             
             <div class="price-details">
                 <p class="price-text" id="modalProductTitle"></p>
+                <p class="product-views-text" id="modalProductViews">👀 Энэ барааг үзсэн: 0 удаа</p>
                 <p class="shipping-text">Хүргэлт: +3,000₮</p>
                 <p class="total-text" id="modalTotalWithShipping"></p>
             </div>
@@ -306,6 +313,7 @@
                 }
                 
                 snapshot.forEach(function(childSnapshot) {
+                    var prodId = childSnapshot.key; // Барааны ID-г авч байна
                     var prod = childSnapshot.val();
                     var card = document.createElement("div");
                     card.className = "product-card";
@@ -314,19 +322,31 @@
                         <img src="${prod.image || 'https://via.placeholder.com/260x200'}" alt="${prod.name}">
                         <h3 class="product-title">${prod.name}</h3>
                         <p class="product-price">${prod.price}₮</p>
-                        <button class="btn-buy" onclick="window.openModal('${prod.name}', '${prod.price}')">Захиалах</button>
+                        <button class="btn-buy" onclick="window.openModal('${prodId}', '${prod.name}', '${prod.price}')">Захиалах</button>
                     `;
                     grid.appendChild(card);
                 });
             });
         };
 
-        window.openModal = function(name, price) {
+        window.openModal = function(prodId, name, price) {
             var numericPrice = parseInt(price.toString().replace(/,/g, '')) || 0;
             var totalWithShipping = numericPrice + 3000;
             
             document.getElementById("modalProductTitle").innerText = "Сонгосон бараа: " + name + " - " + price + "₮";
             document.getElementById("modalTotalWithShipping").innerText = "Шилжүүлэх нийт дүн: " + totalWithShipping.toLocaleString() + "₮";
+            
+            // ТУХАЙН БАРААНЫ ҮЗСЭН ТООГ FIREBASE ДЭЭР 1-ЭЭР НЭМЭГДҮҮЛЭХ
+            var productViewsRef = database.ref('products/' + prodId + '/views');
+            productViewsRef.transaction(function(currentViews) {
+                return (currentViews || 0) + 1;
+            });
+
+            // ШИНЭЧЛЭГДСЭН ҮЗСЭН ТООГ ЦОНХОН ДЭЭР ХАРУУЛАХ
+            productViewsRef.on('value', function(snapshot) {
+                var viewsCount = snapshot.val() || 0;
+                document.getElementById("modalProductViews").innerText = "👀 Энэ барааг үзсэн: " + viewsCount + " удаа";
+            });
                 
             document.getElementById("orderModal").style.display = "flex";
         }
