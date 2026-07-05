@@ -2,22 +2,19 @@
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TEMKA SHOPP - Ухаалаг Дэлгүүр</title>
     <style>
-        :root {
-            --primary: #1e293b;
-            --accent: #3b82f6;
-            --success: #10b981;
-            --danger: #ef4444;
-            --background: #f8fafc;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--background);
-            margin: 0;
-            padding: 20px;
+            background-color: #f8fafc;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -30,98 +27,110 @@
             width: 100%;
             max-width: 1200px;
             text-align: center;
-            padding: 40px 0;
-            border-radius: 16px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+            padding: 20px 0;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.1);
         }
 
         .header h1 {
-            margin: 0;
-            font-size: 3rem;
-            letter-spacing: 2px;
+            font-size: 1.8rem;
             font-weight: 800;
+            letter-spacing: 1px;
         }
 
         .header p {
-            margin: 10px 0 0 0;
+            margin-top: 5px;
             opacity: 0.8;
-            font-size: 1.1rem;
+            font-size: 0.85rem;
         }
 
         .section-title {
-            font-size: 1.8rem;
+            font-size: 1.25rem;
             font-weight: 700;
-            margin-bottom: 20px;
-            color: var(--primary);
-            position: relative;
+            margin-bottom: 15px;
+            color: #1e293b;
+            align-self: flex-start;
+            padding-left: 4px;
         }
 
+        /* УТАС ДЭЭР ЯГ ХАЖУУ ХАЖУУГААРАА 2 БАГАНА БОЛГОХ ҮНДСЭН ХЭСЭГ */
         .product-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            width: 100%;
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+            width: 100% !important;
             max-width: 1200px;
-            padding: 20px 0;
+        }
+
+        /* Компьютер дээр дэлгэц томрохоор олон багана болно */
+        @media (min-width: 768px) {
+            .product-container {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+                gap: 20px !important;
+            }
         }
 
         .product-card {
-            background-color: white;
+            background: white;
             border: 1px solid #e2e8f0;
-            padding: 15px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between;
+            height: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
 
         .product-card img {
-            width: 100%;
-            height: 220px;
+            width: 100% !important;
+            height: 135px !important;
             object-fit: cover;
-            border-radius: 12px;
+            border-radius: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .product-card img {
+                height: 180px !important;
+            }
         }
 
         .product-title {
-            font-size: 18px;
+            font-size: 13px;
             font-weight: 600;
-            margin: 15px 0 8px 0;
-            color: var(--primary);
+            margin: 8px 0 4px 0;
+            color: #1e293b;
+            text-align: left;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 34px;
+            line-height: 1.3;
         }
 
         .product-price {
             font-weight: 700;
-            color: var(--danger);
-            font-size: 20px;
-            margin: 0 0 15px 0;
+            color: #ef4444;
+            font-size: 14px;
+            margin-bottom: 8px;
+            text-align: left;
         }
 
         .btn-buy {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 8px 4px;
             width: 100%;
-            border-radius: 10px;
-            font-size: 15px;
+            border-radius: 6px;
+            font-size: 12px;
             cursor: pointer;
             font-weight: bold;
-            transition: opacity 0.2s;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
         }
 
-        .btn-buy:hover {
-            opacity: 0.9;
-        }
-
+        /* Модал цонхны загвар */
         .modal {
             display: none; 
             position: fixed; 
@@ -138,76 +147,70 @@
 
         .modal-content {
             background-color: white;
-            padding: 30px;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 460px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 20px;
+            border-radius: 20px;
+            width: 92%;
+            max-width: 400px;
             position: relative;
         }
 
         .close-btn {
             position: absolute;
-            right: 25px;
-            top: 20px;
-            font-size: 28px;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
             cursor: pointer;
             color: #94a3b8;
-            transition: color 0.2s;
-        }
-
-        .close-btn:hover {
-            color: var(--primary);
         }
 
         .price-details {
             text-align: left;
             background-color: #f1f5f9;
-            padding: 15px 20px;
-            border-radius: 14px;
-            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            margin: 12px 0;
         }
 
         .price-text {
             font-weight: 700;
-            color: var(--primary);
-            font-size: 18px;
-            margin: 0 0 5px 0;
+            color: #1e293b;
+            font-size: 16px;
             text-align: center;
+            margin-bottom: 4px;
         }
 
         .product-views-text {
-            color: var(--accent);
-            font-size: 13px;
+            color: #3b82f6;
+            font-size: 12px;
             font-weight: 600;
-            margin: 5px 0 12px 0;
+            margin-bottom: 10px;
             text-align: center;
         }
 
         .price-row {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 6px;
+            font-size: 13px;
+            margin-bottom: 4px;
             color: #475569;
         }
 
         .total-text {
-            color: var(--success);
-            font-size: 18px;
+            color: #10b981;
+            font-size: 16px;
             font-weight: 700;
-            margin: 10px 0 0 0;
+            margin-top: 8px;
             border-top: 1px dashed #cbd5e1;
-            padding-top: 10px;
+            padding-top: 8px;
             display: flex;
             justify-content: space-between;
         }
 
         .modal-bank-card {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
             border: 1px solid #e2e8f0;
         }
 
@@ -215,68 +218,43 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 14px;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+            margin-bottom: 8px;
         }
 
         .bank-info-row:last-child {
-            border-bottom: none;
             margin-bottom: 0;
-            padding-bottom: 0;
         }
 
         .bank-info-label {
             color: #64748b;
-            font-weight: 500;
         }
 
         .bank-info-value {
             font-weight: 700;
-            color: var(--primary);
-        }
-
-        .bank-info-value.blue { color: #1d4ed8; }
-        .bank-info-value.red { 
-            color: var(--danger);
-            text-align: right;
-            font-size: 12px;
-            line-height: 1.4;
-            max-width: 220px;
+            color: #1e293b;
         }
 
         .btn-copy {
             background-color: white;
             border: 1px solid #cbd5e1;
-            padding: 4px 8px;
-            font-size: 11px;
-            border-radius: 6px;
+            padding: 1px 4px;
+            font-size: 10px;
+            border-radius: 4px;
             cursor: pointer;
-            font-weight: 600;
-            margin-left: 8px;
-            transition: all 0.2s;
-        }
-
-        .btn-copy:hover {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
+            margin-left: 4px;
         }
         
         .btn-close-modal {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: #1e293b;
             color: white;
             border: none;
-            padding: 15px;
+            padding: 10px;
             width: 100%;
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 12px;
             cursor: pointer;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-            line-height: 1.4;
-            text-align: center;
         }
     </style>
 </head>
@@ -290,51 +268,41 @@
     <div class="section-title">Манай бүтээгдэхүүнүүд</div>
 
     <div class="product-container" id="homeProductGrid">
-        <p style='color:#64748b; font-size:16px;'>Барааг ачаалж байна...</p>
+        <p style='color:#64748b; font-size:14px;'>Барааг ачаалж байна...</p>
     </div>
 
     <div id="orderModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="window.closeModal()">&times;</span>
-            
-            <h3 style="margin: 0 0 5px 0; color: var(--primary); text-align: center; font-size: 22px; font-weight: 800;">🛒 Захиалга Баталгаажуулах</h3>
-            <p style="margin: 0 0 20px 0; color: #64748b; text-align: center; font-size: 14px;">Төлбөрөө шилжүүлээд захиалгаа дуусгаарай</p>
+            <h3 style="text-align: center; font-size: 16px; font-weight: 800;">🛒 Захиалга Баталгаажуулах</h3>
             
             <div class="price-details">
                 <p class="price-text" id="modalProductTitle"></p>
-                <p class="product-views-text" id="modalProductViews">👀 Үзсэн тоо: 0</p>
-                
+                <p class="product-views-text" id="modalProductViews">👀 Үзсэн: 0</p>
                 <div class="price-row">
                     <span>Барааны үнэ:</span>
-                    <span id="modalProductPriceOnly" style="font-weight: 600;">0₮</span>
+                    <span id="modalProductPriceOnly">0₮</span>
                 </div>
                 <div class="price-row">
-                    <span>Хүргэлтийн төлбөр:</span>
-                    <span style="font-weight: 600; color: var(--accent);">+3,000₮</span>
+                    <span>Хүргэлт:</span>
+                    <span style="color: #3b82f6;">+3,000₮</span>
                 </div>
                 <div class="total-text">
-                    <span>Нийт шилжүүлэх дүн:</span>
+                    <span>Нийт дүн:</span>
                     <span id="modalTotalWithShipping">0₮</span>
                 </div>
             </div>
             
             <div class="modal-bank-card">
                 <div class="bank-info-row">
-                    <span class="bank-info-label">Хүлээн авах банк:</span>
-                    <span class="bank-info-value blue">ХХБ (TDB)</span>
+                    <span class="bank-info-label">Банк:</span>
+                    <span class="bank-info-value" style="color: #1d4ed8;">ХХБ (TDB)</span>
                 </div>
                 <div class="bank-info-row">
-                    <span class="bank-info-label">Дансны дугаар:</span>
+                    <span class="bank-info-label">Данс:</span>
                     <div>
                         <span class="bank-info-value" id="bankAcc">428025046</span>
                         <button class="btn-copy" onclick="window.copyText('bankAcc', this)">Хуулах</button>
-                    </div>
-                </div>
-                <div class="bank-info-row">
-                    <span class="bank-info-label">IBAN дугаар:</span>
-                    <div>
-                        <span class="bank-info-value" id="bankIban">MN390004000428025046</span>
-                        <button class="btn-copy" onclick="window.copyText('bankIban', this)">Хуулах</button>
                     </div>
                 </div>
                 <div class="bank-info-row">
@@ -342,12 +310,12 @@
                     <span class="bank-info-value">Б.Тэмүүжин</span>
                 </div>
                 <div class="bank-info-row">
-                    <span class="bank-info-label">Гүйлгээний утга:</span>
-                    <span class="bank-info-value red">Утасны дугаар, хаягаа заавал бичээрэй!</span>
+                    <span class="bank-info-label" style="color:#ef4444; font-weight:bold;">Утга:</span>
+                    <span class="bank-info-value" style="color:#ef4444; font-size:11px;">Утасны дугаараа бичээрэй</span>
                 </div>
             </div>
 
-            <button class="btn-close-modal" onclick="window.closeModal()">Төлбөр хийсний дараа манай чат руу захиалгаа баталгаажуулаарай 👍</button>
+            <button class="btn-close-modal" onclick="window.closeModal()">Төлбөр хийсний дараа чатаар холбогдоорой 👍</button>
         </div>
     </div>
 
@@ -377,51 +345,39 @@
             
             database.ref('products').on('value', function(snapshot) {
                 grid.innerHTML = ""; 
-                
                 if (!snapshot.exists()) {
-                    grid.innerHTML = "<p style='color:#64748b;'>Одоогоор бараа байхгүй байна.</p>";
+                    grid.innerHTML = "<p>Бараа олдсонгүй.</p>";
                     return;
                 }
                 
                 snapshot.forEach(function(childSnapshot) {
                     var prodId = childSnapshot.key;
                     var prod = childSnapshot.val();
-                    
-                    var rawPrice = prod.price ? prod.price.toString().replace(/[^0-9]/g, '') : "0";
-                    var numericPrice = parseInt(rawPrice) || 0;
+                    var numericPrice = parseInt(prod.price ? prod.price.toString().replace(/[^0-9]/g, '') : 0) || 0;
                     
                     var card = document.createElement("div");
                     card.className = "product-card";
-                    
                     card.innerHTML =
-                        '<img src="' + (prod.image || 'https://via.placeholder.com/280x220') + '" alt="' + prod.name + '">' +
+                        '<img src="' + (prod.image || 'https://via.placeholder.com/200') + '" alt="' + prod.name + '">' +
                         '<h3 class="product-title">' + prod.name + '</h3>' +
                         '<p class="product-price">' + numericPrice.toLocaleString() + '₮</p>' +
                         '<button class="btn-buy" onclick="window.openModal(\'' + prodId + '\', \'' + prod.name + '\', \'' + numericPrice + '\')">Захиалах</button>';
-                    
                     grid.appendChild(card);
                 });
             });
         };
 
         window.openModal = function(prodId, name, price) {
-            var numericPrice = parseInt(price.toString().replace(/,/g, '')) || 0;
-            var totalWithShipping = numericPrice + 3000;
-            
+            var numericPrice = parseInt(price) || 0;
             document.getElementById("modalProductTitle").innerText = name;
             document.getElementById("modalProductPriceOnly").innerText = numericPrice.toLocaleString() + "₮";
-            document.getElementById("modalTotalWithShipping").innerText = totalWithShipping.toLocaleString() + "₮";
+            document.getElementById("modalTotalWithShipping").innerText = (numericPrice + 3000).toLocaleString() + "₮";
             
-            var productViewsRef = database.ref('products/' + prodId + '/views');
-            productViewsRef.transaction(function(currentViews) {
-                return (currentViews || 0) + 1;
+            var viewRef = database.ref('products/' + prodId + '/views');
+            viewRef.transaction(function(v) { return (v || 0) + 1; });
+            viewRef.on('value', function(s) {
+                document.getElementById("modalProductViews").innerText = "👀 Энэ барааг " + (s.val() || 0) + " удаа үзсэн байна";
             });
-
-            productViewsRef.on('value', function(snapshot) {
-                var viewsCount = snapshot.val() || 0;
-                document.getElementById("modalProductViews").innerText = "👀 Энэ барааг хүмүүс " + viewsCount + " удаа сонирхсон байна";
-            });
-                
             document.getElementById("orderModal").style.display = "flex";
         };
 
@@ -429,19 +385,10 @@
             document.getElementById("orderModal").style.display = "none";
         };
 
-        window.copyText = function(elementId, btnElement) {
-            var text = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(text).then(function() {
-                var oldText = btnElement.innerText;
-                btnElement.innerText = "Хуулагдлаа!";
-                btnElement.style.backgroundColor = "#10b981";
-                btnElement.style.color = "white";
-                
-                setTimeout(function() {
-                    btnElement.innerText = oldText;
-                    btnElement.style.backgroundColor = "white";
-                    btnElement.style.color = "initial";
-                }, 2000);
+        window.copyText = function(id, btn) {
+            navigator.clipboard.writeText(document.getElementById(id).innerText).then(function() {
+                var txt = btn.innerText; btn.innerText = "Хуулагдлаа!";
+                setTimeout(function() { btn.innerText = txt; }, 2000);
             });
         };
     </script>
