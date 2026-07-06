@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>T&E АДМИН ПАНЕЛЬ (Статистик)</title>
+    <title>T&E АДМИН ПАНЕЛЬ (Захиалга хянах)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -104,12 +104,12 @@
             text-align: left;
         }
 
-        .product-list {
+        .product-list, .order-list {
             width: 100%;
             max-width: 500px;
         }
 
-        .admin-prod-card {
+        .admin-prod-card, .order-card {
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
@@ -129,18 +129,18 @@
             margin-right: 12px;
         }
 
-        .prod-info {
+        .prod-info, .order-info {
             flex-grow: 1;
             text-align: left;
         }
 
-        .prod-name {
+        .prod-name, .order-title {
             font-size: 14px;
             font-weight: 700;
             color: #1e293b;
         }
 
-        .prod-price {
+        .prod-price, .order-sub {
             font-size: 13px;
             font-weight: 700;
             color: #ef4444;
@@ -180,10 +180,6 @@
             font-weight: 700;
             cursor: pointer;
         }
-
-        .btn-delete:hover {
-            background-color: #fca5a5;
-        }
     </style>
 </head>
 <body>
@@ -210,8 +206,12 @@
         <button class="btn-add" onclick="window.addProduct()">＋ Шинэ бараа нэмэх</button>
     </div>
 
-    <div class="section-title">📊 Барааны борлуулалт & Статистик</div>
+    <div class="section-title">🛒 Ирсэн бодит захиалгууд (Утасны дугаар)</div>
+    <div class="order-list" id="adminOrderList">
+        <p style="color:#64748b; font-size:14px; text-align:center; padding: 15px; background: white; border-radius:12px; border: 1px solid #e2e8f0;">Шинэ захиалга байхгүй байна...</p>
+    </div>
 
+    <div class="section-title">📊 Барааны хандалт & Статистик</div>
     <div class="product-list" id="adminProductList">
         <p style="color:#64748b; font-size:14px; text-align:center; padding: 20px; background: white; border-radius:12px; border: 1px solid #e2e8f0;">Ачаалж байна...</p>
     </div>
@@ -236,26 +236,25 @@
         }
         const database = firebase.database();
 
-        // Баазаас бараа болон үзсэн, захиалсан тоог уншиж харуулах функц
         window.onload = function() {
-            var listDiv = document.getElementById("adminProductList");
-            if (!listDiv) return;
+            loadProducts();
+            loadOrders();
+        };
 
+        // Баазаас бараануудыг унших
+        function loadProducts() {
+            var listDiv = document.getElementById("adminProductList");
             database.ref('products').on('value', function(snapshot) {
                 listDiv.innerHTML = "";
-                
                 if (!snapshot.exists()) {
-                    listDiv.innerHTML = "<p style='color:#64748b; text-align:center; padding:20px; background:white; border-radius:12px;'>Одоогоор ямар ч бараа байхгүй байна.</p>";
+                    listDiv.innerHTML = "<p style='color:#64748b; text-align:center; padding:20px; background:white; border-radius:12px;'>Бараа байхгүй.</p>";
                     return;
                 }
-
                 snapshot.forEach(function(childSnapshot) {
                     var prodId = childSnapshot.key;
                     var prod = childSnapshot.val();
-                    
-                    // Хэрэв дата байхгүй бол 0 гэж харуулна
                     var views = prod.views || 0;
-                    var orders = prod.orders || 0; 
+                    var orders = prod.orders || 0;
                     var numericPrice = parseInt(prod.price ? prod.price.toString().replace(/[^0-9]/g, '') : 0) || 0;
 
                     var row = document.createElement("div");
@@ -271,20 +270,45 @@
                             '</div>' +
                         '</div>' +
                         '<button class="btn-delete" onclick="window.deleteProduct(\'' + prodId + '\')">Устгах</button>';
-
                     listDiv.appendChild(row);
                 });
             });
-        };
+        }
 
-        // Шинэ бараа нэмэх функц
+        // Баазаас ирсэн бодит захиалгуудыг (Утасны дугаар) уншиж харуулах
+        function loadOrders() {
+            var orderDiv = document.getElementById("adminOrderList");
+            database.ref('orders').on('value', function(snapshot) {
+                orderDiv.innerHTML = "";
+                if (!snapshot.exists()) {
+                    orderDiv.innerHTML = "<p style='color:#64748b; text-align:center; padding:15px; background:white; border-radius:12px;'>Шинэ захиалга байхгүй байна...</p>";
+                    return;
+                }
+                snapshot.forEach(function(childSnapshot) {
+                    var orderId = childSnapshot.key;
+                    var order = childSnapshot.val();
+
+                    var card = document.createElement("div");
+                    card.className = "order-card";
+                    card.innerHTML = 
+                        '<div class="order-info">' +
+                            '<div class="order-title">📞 Утас: ' + order.phone + '</div>' +
+                            '<div class="order-sub">📦 Бараа: ' + order.productName + ' | Код: ' + (order.orderCode || 'Байхгүй') + '</div>' +
+                        '</div>' +
+                        '<button class="btn-delete" style="background:#d1fae5; color:#065f46;" onclick="window.completeOrder(\'' + orderId + '\')">Хүргэсэн</button>';
+                    orderDiv.appendChild(card);
+                });
+            });
+        }
+
+        // Шинэ бараа нэмэх
         window.addProduct = function() {
             var img = document.getElementById("prodImage").value.trim();
             var name = document.getElementById("prodName").value.trim();
             var price = document.getElementById("prodPrice").value.trim();
 
             if (!name || !price) {
-                alert("Бүтээгдэхүүний нэр болон үнийг заавал оруулна уу!");
+                alert("Нэр болон үнийг оруулна уу!");
                 return;
             }
 
@@ -295,22 +319,27 @@
                 name: name,
                 price: numericPrice,
                 views: 0,
-                orders: 0 // Захиалгын тоог 0-ээс эхлүүлнэ
+                orders: 0
             }).then(function() {
-                alert("Бараа амжилттай нэмэгдлээ! 👍");
+                alert("Бараа нэмэгдлээ!");
                 document.getElementById("prodImage").value = "";
                 document.getElementById("prodName").value = "";
                 document.getElementById("prodPrice").value = "";
-            }).catch(function(error) {
-                alert("Алдаа гарлаа: " + error.message);
             });
         };
 
-        // Бараа устгах функц
+        // Бараа устгах
         window.deleteProduct = function(prodId) {
-            if (confirm("Энэ барааг устгахдаа итгэлтэй байна уу?")) {
-                database.ref('products/' + prodId).remove().then(function() {
-                    alert("Бараа устгагдлаа.");
+            if (confirm("Устгах уу?")) {
+                database.ref('products/' + prodId).remove();
+            }
+        };
+
+        // Захиалга хүргэгдэж дууссаны дараа жагсаалтаас устгах функц
+        window.completeOrder = function(orderId) {
+            if (confirm("Энэ захиалгыг хүргэж дуусгасан тул устгах уу?")) {
+                database.ref('orders/' + orderId).remove().then(function() {
+                    alert("Захиалга амжилттай хаагдлаа! 🤝");
                 });
             }
         };
