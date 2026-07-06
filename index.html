@@ -54,7 +54,6 @@
             padding-left: 4px;
         }
 
-        /* УТАС ДЭЭР ЯГ ХАЖУУ ХАЖУУГААРАА 2 БАГАНА БОЛГОХ ҮНДСЭН ХЭСЭГ */
         .product-container {
             display: grid !important;
             grid-template-columns: repeat(2, 1fr) !important;
@@ -63,7 +62,6 @@
             max-width: 1200px;
         }
 
-        /* Компьютер дээр дэлгэц томрохоор олон багана болно */
         @media (min-width: 768px) {
             .product-container {
                 grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
@@ -130,7 +128,6 @@
             font-weight: bold;
         }
 
-        /* Модал цонхны загвар */
         .modal {
             display: none; 
             position: fixed; 
@@ -244,17 +241,41 @@
             cursor: pointer;
             margin-left: 4px;
         }
+
+        /* 📱 ШИНЭ: УТАСНЫ ДУГААР ОРУУЛАХ ТАЛБАРЫН ЗАГВАР */
+        .phone-input-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .phone-input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .phone-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            font-weight: bold;
+        }
         
         .btn-close-modal {
-            background: #1e293b;
+            background: #10b981;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             width: 100%;
             border-radius: 10px;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             font-weight: bold;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
         }
     </style>
 </head>
@@ -310,12 +331,17 @@
                     <span class="bank-info-value">Б.Тэмүүжин</span>
                 </div>
                 <div class="bank-info-row">
-                    <span class="bank-info-label" style="color:#ef4444; font-weight:bold;">Утга:</span>
-                    <span class="bank-info-value" style="color:#ef4444; font-size:11px;">Утасны дугаараа бичээрэй</span>
+                    <span class="bank-info-label" style="color:#ef4444; font-weight:bold;">Гүйлгээний утга:</span>
+                    <span class="bank-info-value" id="modalOrderCode" style="color:#ef4444; font-weight: 800;">---</span>
                 </div>
             </div>
 
-            <button class="btn-close-modal" onclick="window.closeModal()">Төлбөр хийсний дараа чатаар холбогдоорой 👍</button>
+            <div class="phone-input-group">
+                <label>1. Холбоо барих утасны дугаар:</label>
+                <input type="number" id="userPhone" placeholder="Жишээ: 99112233">
+            </div>
+
+            <button class="btn-close-modal" onclick="window.submitOrder()">✅ Захиалга илгээх & Төлөх</button>
         </div>
     </div>
 
@@ -338,6 +364,9 @@
             firebase.initializeApp(firebaseConfig);
         }
         const database = firebase.database();
+
+        let currentActiveProdId = "";
+        let currentActiveProdName = "";
 
         window.onload = function() {
             var grid = document.getElementById("homeProductGrid");
@@ -368,17 +397,56 @@
         };
 
         window.openModal = function(prodId, name, price) {
+            currentActiveProdId = prodId;
+            currentActiveProdName = name;
             var numericPrice = parseInt(price) || 0;
+            
             document.getElementById("modalProductTitle").innerText = name;
             document.getElementById("modalProductPriceOnly").innerText = numericPrice.toLocaleString() + "₮";
             document.getElementById("modalTotalWithShipping").innerText = (numericPrice + 3000).toLocaleString() + "₮";
+            document.getElementById("userPhone").value = "";
+
+            // Санамсаргүй 4 оронтой гүйлгээний код үүсгэх
+            var randomCode = "TE-" + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById("modalOrderCode").innerText = randomCode;
             
+            // Үзсэн тоог 1-ээр ахиулах
             var viewRef = database.ref('products/' + prodId + '/views');
             viewRef.transaction(function(v) { return (v || 0) + 1; });
             viewRef.on('value', function(s) {
                 document.getElementById("modalProductViews").innerText = "👀 Энэ барааг " + (s.val() || 0) + " удаа үзсэн байна";
             });
+
             document.getElementById("orderModal").style.display = "flex";
+        };
+
+        // 🛒 ШИНЭ: ЗАХИАЛГЫГ БААЗ РУУ ИЛГЕЭХ ЖИНХЭНЭ ФУНКЦ
+        window.submitOrder = function() {
+            var phoneInput = document.getElementById("userPhone").value.trim();
+            var orderCode = document.getElementById("modalOrderCode").innerText;
+
+            if (!phoneInput || phoneInput.length < 6) {
+                alert("Захиалга баталгаажуулахын тулд утасны дугаараа зөв оруулна уу!");
+                return;
+            }
+
+            // 1. Бааз руу захиалгыг утастай нь хадгалах
+            database.ref('orders').push({
+                phone: phoneInput,
+                productName: currentActiveProdName,
+                orderCode: orderCode,
+                timestamp: Date.now()
+            }).then(function() {
+                // 2. Тухайн барааны 'orders' статистикийг админд харуулахын тулд 1-ээр ахиулах
+                database.ref('products/' + currentActiveProdId + '/orders').transaction(function(o) {
+                    return (o || 0) + 1;
+                });
+
+                alert("Захиалга бүртгэгдлээ! 👍\n\nТа ХХБ данс руу мөнгөө шилжүүлэхдээ гүйлгээний утга дээр '" + orderCode + "' гэж заавал бичээрэй. Мөнгө орж ирсний дараа бид " + phoneInput + " дугаар руу залгах болно!");
+                window.closeModal();
+            }).catch(function(err) {
+                alert("Алдаа гарлаа: " + err.message);
+            });
         };
 
         window.closeModal = function() {
