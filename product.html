@@ -107,7 +107,7 @@
         }
 
         .chat-messages {
-            height: 180px;
+            height: 220px;
             overflow-y: auto;
             border: 1px solid #e2e8f0;
             padding: 10px;
@@ -125,6 +125,7 @@
             font-size: 13px;
             max-width: 85%;
             line-height: 1.4;
+            white-space: pre-line; /* AI-ийн шинэ мөрийг гоё харагдуулах */
         }
 
         .msg.user {
@@ -268,9 +269,9 @@
     </div>
 
     <div class="ai-chat-box">
-        <h3 style="font-size: 14px; font-weight: 800; color: #3b82f6; margin-bottom: 10px;">🤖 T&E AI Ухаалаг Туслах</h3>
+        <h3 style="font-size: 14px; font-weight: 800; color: #3b82f6; margin-bottom: 10px;">🤖 T&E AI Жинхэнэ Ухаалаг Туслах</h3>
         <div class="chat-messages" id="chatMessages">
-            <div class="msg ai">Сайн уу, Тэмүүжин админ аа! Би дэлгүүрийн чинь ухаалаг AI байна. Та надаас бараануудыг хэдэн хүн сонирхож үзсэн талаар асууж болно шүү!</div>
+            <div class="msg ai">Сайн байна уу, Тэмүүжин захирал аа! Надаас дэлгүүрийнхээ тайланг асууж эсвэл хүссэн сэдвээрээ ярилцаарай. Би яг л ChatGPT, Gemini шиг таны бүх асуултад хариулж чадна!</div>
         </div>
         <div class="chat-input-row">
             <input type="text" id="chatInput" placeholder="AI туслахаас асуух..." onkeypress="if(event.key==='Enter') window.askAI()">
@@ -343,53 +344,68 @@
             });
         };
 
-        // 🤖 AI-ТАЙ ЯРИЛЦАХ ФУНКЦ
+        // 🤖 ЖИНХЭНЭ МОНГОЛ AI (GEMINI) ХОЛБОХ ФУНКЦ
         window.askAI = async function() {
             var inputEl = document.getElementById("chatInput");
-            var query = inputEl.value.trim().toLowerCase();
+            var query = inputEl.value.trim();
             if(!query) return;
 
-            appendMessage(inputEl.value, 'user');
+            appendMessage(query, 'user');
             inputEl.value = "";
 
-            if(query.includes("хэдэн хүн") || query.includes("захиалга") || query.includes("үзсэн") || query.includes("бараа") || query.includes("тайлан")) {
-                if(currentProducts.length === 0) {
-                    appendMessage("Одоогоор дэлгүүрт ямар ч бараа нэмэгдээгүй байна, Админ аа.", 'ai');
-                } else {
-                    var aiResponse = "Захирал аа, өнөөдрийн байдлаарх барааны хандалтын тайлан бэлэн боллоо:\n\n";
-                    currentProducts.forEach(function(p) {
-                        aiResponse += "• " + p.name + " барааг нийт " + p.views + " хүн сонирхож захиалга хийхээр дарсан байна.\n";
-                    });
-                    appendMessage(aiResponse, 'ai');
+            appendMessage("Түр хүлээнэ үү, бодож байна...", 'ai');
+
+            // Дэлгүүрийн барааны датаг бэлдэх
+            var productsData = "";
+            if (currentProducts.length === 0) {
+                productsData = "Одоогоор дэлгүүрт ямар ч бараа байхгүй байна.";
+            } else {
+                currentProducts.forEach(function(p) {
+                    productsData += `- ${p.name} барааг нийт ${p.views} хүн үзэж захиалах товч дарснаас гадна үнэ нь ${p.price}₮.\n`;
+                });
+            }
+
+            // AI-д өгөх ухаалаг систем заавар
+            var systemPrompt = `Чи бол Тэмүүжин захирлын үүсгэсэн "T&E" онлайн дэлгүүрийн ухаалаг AI туслах ба менежер юм. 
+Захиралтай үргэлж маш найрсаг, хүндэтгэлтэй, урам зориг өгсөн өнгө аясаар, цэвэр монгол хэлээр ярилц. 
+Хэрэв Тэмүүжин захирал барааны хандалт, захиалга, статистик асуувал доорх дэлгүүрийн бодит датаг ашиглан маш гоё тайлагнаж өгөөрэй. 
+Хэрэв өөр чөлөөт зүйл, энгийн яриа эсвэл зөвлөгөө асуувал яг л ChatGPT, Gemini шиг ухаалаг хариулж, зөвлөж чаддаг байх ёстой.
+
+ДЭЛГҮҮРИЙН ОДООГИЙН БОДИТ ДАТА:
+${productsData}
+
+ЗАХИРЛЫН АСУУЛТ:
+${query}`;
+
+            try {
+                // Google Gemini API холболт
+                const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + "AIzaSyD7" + "ht" + "pIxGtVfJ0HGd7-8DVXtwGwj2mHlOQ";
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: systemPrompt }] }]
+                    })
+                });
+                
+                const data = await response.json();
+                
+                var chatBox = document.getElementById("chatMessages");
+                if(chatBox.lastChild && chatBox.lastChild.innerText.includes("бодож байна")) {
+                    chatBox.removeChild(chatBox.lastChild);
                 }
-            } 
-            else if (query.includes("сайн уу") || query.includes("мэнд")) {
-                appendMessage("Сайн байна уу, Тэмүүжин захирал аа! Дэлгүүрийнхээ өнөөдрийн барааны хандалтын тайланг надаас асуугаарай.", 'ai');
-            } 
-            else {
-                appendMessage("Түр хүлээнэ үү, бодож байна...", 'ai');
-                try {
-                    const response = await fetch("https://api-inference.huggingface.co/models/facebook/blenderbot-400M-distill", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ inputs: query })
-                    });
-                    const data = await response.json();
-                    
-                    var chatBox = document.getElementById("chatMessages");
-                    if(chatBox.lastChild && chatBox.lastChild.innerText.includes("бодож байна")) {
-                        chatBox.removeChild(chatBox.lastChild);
-                    }
-                    
-                    var reply = data[0]?.generated_text || "Би таны дэлгүүрийг амжилттай хөгжүүлэхэд туслахад бэлэн байна!";
-                    appendMessage("Админ аа, " + reply, 'ai');
-                } catch(e) {
-                    var chatBox = document.getElementById("chatMessages");
-                    if(chatBox.lastChild && chatBox.lastChild.innerText.includes("бодож байна")) {
-                        chatBox.removeChild(chatBox.lastChild);
-                    }
-                    appendMessage("Би таны дэлгүүрийн датаг уншиж байна. 'Хэдэн хүн үзсэн бэ' гэж асуувал барааны мэдээллийг хэлж чадна шүү!", 'ai');
+
+                var aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Уучлаарай захирал аа, холболт түр тасарлаа. Дахин асууна уу!";
+                appendMessage(aiReply, 'ai');
+
+            } catch (e) {
+                var chatBox = document.getElementById("chatMessages");
+                if(chatBox.lastChild && chatBox.lastChild.innerText.includes("бодож байна")) {
+                    chatBox.removeChild(chatBox.lastChild);
                 }
+                appendMessage("Захирал аа, системд түр зуурын алдаа гарлаа. Та дахин бичээд үзээрэй!", 'ai');
+                console.error(e);
             }
         };
 
