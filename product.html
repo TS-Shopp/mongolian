@@ -344,7 +344,7 @@
             });
         };
 
-        // 🤖 ЧӨЛӨӨТЭЙ ЯРИЛЦАХ ШИНЭ AI ФУНКЦ (ТҮЛХҮҮР ШААРДЛАГАГҮЙ)
+        // 🤖 ТОГТВОРТОЙ, ХУРДАН АЖИЛЛАХ СҮҮЛЧИЙН AI ХОЛБОЛТ
         window.askAI = async function() {
             var inputEl = document.getElementById("chatInput");
             var query = inputEl.value.trim();
@@ -355,7 +355,6 @@
 
             appendMessage("Түр хүлээнэ үү, бодож байна...", 'ai');
 
-            // Дэлгүүрийн барааны датаг текст болгож бэлдэх
             var productsData = "";
             if (currentProducts.length === 0) {
                 productsData = "Одоогоор дэлгүүрт ямар ч бараа байхгүй байна.";
@@ -365,22 +364,24 @@
                 });
             }
 
-            // AI-д өгөх ухаалаг систем заавар (Prompt)
             var systemPrompt = "Чи бол Тэмүүжин захирлын 'T&E' онлайн дэлгүүрийн ухаалаг AI туслах ба менежер юм. " +
             "Захиралтай үргэлж маш найрсаг, хүндэтгэлтэй, урам зориг өгсөн өнгө аясаар, цэвэр монгол хэлээр ярилц. " +
             "Хэрэв Тэмүүжин захирал барааны хандалт, захиалга, статистик асуувал доорх дэлгүүрийн бодит датаг ашиглан маш гоё тайлагнаж өгөөрэй. " +
-            "Хэрэв өөр чөлөөт зүйл, энгийн яриа, математик, бизнес эсвэл зөвлөгөө асуувал яг л ChatGPT шиг ухаалаг хариулж, зөвлөж чаддаг байх ёстой.\n\n" +
+            "Хэрэв өөр зүйл, энгийн яриа, математик эсвэл бизнес асуувал яг л ChatGPT шиг ухаалаг хариулж, зөвлөж чаддаг байх ёстой.\n\n" +
             "ДЭЛГҮҮРИЙН ОДООГИЙН БОДИТ ДАТА:\n" + productsData + "\n\n" +
             "ЗАХИРЛЫН АСУУЛТ: " + query;
 
             try {
-                // Үнэгүй чөлөөт AI сервер рүү хүсэлт илгээх
-                const response = await fetch("https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct", {
+                // Олон улсын нээлттэй тогтвортой AI API руу хүсэлт явуулах хэсэг
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        inputs: systemPrompt,
-                        parameters: { max_new_tokens: 250, return_full_text: false }
+                    headers: {
+                        "Authorization": "Bearer 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",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "google/gemini-2.5-flash",
+                        messages: [{ role: "user", content: systemPrompt }]
                     })
                 });
                 
@@ -391,16 +392,7 @@
                     chatBox.removeChild(chatBox.lastChild);
                 }
 
-                // Хариултыг цэвэрлэж гаргах
-                var aiReply = "";
-                if (Array.isArray(data) && data[0]?.generated_text) {
-                    aiReply = data[0].generated_text.trim();
-                } else if (data.generated_text) {
-                    aiReply = data.generated_text.trim();
-                } else {
-                    aiReply = "Уучлаарай захирал аа, систем түр ачаалалтай байна. Дахин нэг бичээд үзээрэй!";
-                }
-                
+                var aiReply = data.choices?.[0]?.message?.content?.trim() || "Уучлаарай захирал аа, систем түр ачаалалтай байна. Дахин нэг бичээд үзээрэй!";
                 appendMessage(aiReply, 'ai');
 
             } catch (e) {
