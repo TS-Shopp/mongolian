@@ -130,6 +130,7 @@
         }
         const database = firebase.database();
 
+        // TELEGRAM БОТНЫ ТОХИРГОО (Шинэ зөв токен)
         const TG_BOT_TOKEN = "8791135920:AAEP7B1oC3e4cYbUT3ThHxH6QmHanMzsbdU"; 
         const TG_CHAT_ID = "6759790987"; 
 
@@ -205,7 +206,6 @@
             var file = receiptInput.files[0];
             var totalAmount = (currentActiveProdPrice + 3000).toLocaleString() + "₮";
 
-            // Текстүүдийг нэг мөр болгон засаж, хашилтыг цэгцэлсэн хэсэг
             var textMessage = "🔔 ШИНЭ ЗАХИАЛГА ИРЛЭЭ!\n\n📞 Утас: " + phoneInput + "\n📦 Бараа: " + currentActiveProdName + "\n💰 Нийт дүн: " + totalAmount + "\n🔢 Гүйлгээний утга: " + orderCode;
 
             var formData = new FormData();
@@ -217,6 +217,7 @@
             submitBtn.innerText = "Илгээж байна...";
             submitBtn.disabled = true;
 
+            // Цэвэрхэн хашилттай ажиллах зөв фэтч хэсэг
             fetch("https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendPhoto", {
                 method: "POST",
                 body: formData
