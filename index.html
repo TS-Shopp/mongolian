@@ -271,13 +271,13 @@
             padding: 12px;
             width: 100%;
             border-radius: 10px;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             font-weight: bold;
             box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
         }
 
-        /* ------------------ АДМИН ПАНЕЛИЙН СТИЛЬ ------------------ */
+        /* ------------------ АДМИН ХЭСГИЙН СТИЛЬ ------------------ */
         .admin-box {
             background-color: white;
             padding: 20px;
@@ -285,7 +285,7 @@
             width: 100%;
             max-width: 500px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-top: 30px;
+            margin-top: 40px;
             border-top: 4px solid #1e293b;
         }
 
@@ -504,14 +504,13 @@
             </div>
 
             <div class="phone-input-group">
-                <label>2. Төлбөрийн баримт эсвэл QR зураг:</label>
+                <label>2. Төлбөрийн баримтын зураг:</label>
                 <input type="file" id="userReceipt" accept="image/*" style="width: 100%; padding: 8px; border: 2px solid #3b82f6; border-radius: 8px; background: white; font-weight: bold;">
             </div>
 
-            <button class="btn-close-modal" onclick="window.submitOrder()">✅ Захиалга илгээх & Төлөх</button>
+            <button class="btn-close-modal" onclick="window.submitOrder()">✅ Болсон</button>
         </div>
     </div>
-
 
     <div class="admin-box">
         <a href="index.html" class="back-link">← Буцах</a>
@@ -545,7 +544,6 @@
         <p style="color:#64748b; font-size:14px; text-align:center; padding: 20px; background: white; border-radius:12px; border: 1px solid #e2e8f0;">Ачаалж байна...</p>
     </div>
 
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -570,7 +568,6 @@
         let currentActiveProdName = "";
 
         window.onload = function() {
-            // Хэрэглэгчийн талын барааг унших
             var grid = document.getElementById("homeProductGrid");
             if (grid) {
                 database.ref('products').on('value', function(snapshot) {
@@ -595,8 +592,6 @@
                     });
                 });
             }
-
-            // Админ талын бараа болон захиалгуудыг унших
             loadProducts();
             loadOrders();
         };
@@ -610,7 +605,7 @@
             document.getElementById("modalProductPriceOnly").innerText = numericPrice.toLocaleString() + "₮";
             document.getElementById("modalTotalWithShipping").innerText = (numericPrice + 3000).toLocaleString() + "₮";
             document.getElementById("userPhone").value = "";
-            document.getElementById("userReceipt").value = ""; // Зургийн сонголтыг цэвэрлэх
+            document.getElementById("userReceipt").value = "";
 
             var randomCode = "TE-" + Math.floor(1000 + Math.random() * 9000);
             document.getElementById("modalOrderCode").innerText = randomCode;
@@ -624,7 +619,6 @@
             document.getElementById("orderModal").style.display = "flex";
         };
 
-        // 🛒 ШИНЭЧЛЭСЭН: ЗАХИАЛГЫГ БААЗ РУУ ИЛГЕЭХ ЖИНХЭНЭ ФУНКЦ
         window.submitOrder = function() {
             var phoneInput = document.getElementById("userPhone").value.trim();
             var orderCode = document.getElementById("modalOrderCode").innerText;
@@ -635,27 +629,25 @@
                 return;
             }
 
-            // Зургийн шалгалт
             if (!receiptInput.files || receiptInput.files.length === 0) {
-                alert("Төлбөр төлсөн баримт эсвэл QR кодны зургаа заавал оруулна уу!");
+                alert("Төлбөр төлсөн баримтын зургаа заавал оруулна уу!");
                 return;
             }
 
             var fileName = receiptInput.files[0].name;
 
-            // 1. Бааз руу утас болон баримтын нэртэй хадгалах
             database.ref('orders').push({
                 phone: phoneInput,
                 productName: currentActiveProdName,
                 orderCode: orderCode,
-                receiptImageName: fileName, // Баазад хадгалагдах зургийн нэр
+                receiptImageName: fileName,
                 timestamp: Date.now()
             }).then(function() {
                 database.ref('products/' + currentActiveProdId + '/orders').transaction(function(o) {
                     return (o || 0) + 1;
                 });
 
-                alert("Захиалга болон баримт амжилттай бүртгэгдлээ! 👍\n\nТа ХХБ данс руу мөнгөө шилжүүлэхдээ гүйлгээний утга дээр '" + orderCode + "' гэж заавал бичээрэй. Мөнго орж ирсний дараа бид " + phoneInput + " дугаар руу залгах болно!");
+                alert("Захиалга бүртгэгдлээ! 👍\n\nТа ХХБ данс руу мөнгөө шилжүүлэхдээ гүйлгээний утга дээр '" + orderCode + "' гэж заавал бичээрэй.");
                 window.closeModal();
             }).catch(function(err) {
                 alert("Алдаа гарлаа: " + err.message);
@@ -673,10 +665,9 @@
             });
         };
 
-        // ------------------ АДМИН ПАНЕЛИЙН ФУНКЦҮҮД ------------------
         function loadProducts() {
             var listDiv = document.getElementById("adminProductList");
-            if(!listDiv) return;
+            if (!listDiv) return;
             database.ref('products').on('value', function(snapshot) {
                 listDiv.innerHTML = "";
                 if (!snapshot.exists()) {
@@ -710,7 +701,7 @@
 
         function loadOrders() {
             var orderDiv = document.getElementById("adminOrderList");
-            if(!orderDiv) return;
+            if (!orderDiv) return;
             database.ref('orders').on('value', function(snapshot) {
                 orderDiv.innerHTML = "";
                 if (!snapshot.exists()) {
