@@ -3,58 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TEMKA SHOPP - Ухаалаг Дэлгүүр</title>
+    <title>T&E Shopp - Онлайн дэлгүүр</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f8fafc; padding: 8px; display: flex; flex-direction: column; align-items: center; color: #334155; }
-        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; width: 100%; max-width: 1200px; text-align: center; padding: 20px 0; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.1); }
-        .header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: 1px; }
-        .header p { margin-top: 5px; opacity: 0.8; font-size: 0.85rem; }
-        .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 15px; color: #1e293b; align-self: flex-start; padding-left: 4px; }
-        .product-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; width: 100% !important; max-width: 1200px; }
-        @media (min-width: 768px) { .product-container { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important; gap: 20px !important; } }
-        .product-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; display: flex !important; flex-direction: column !important; justify-content: space-between; height: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .product-card img { width: 100% !important; height: 135px !important; object-fit: cover; border-radius: 8px; }
-        @media (min-width: 768px) { .product-card img { height: 180px !important; } }
-        .product-title { font-size: 13px; font-weight: 600; margin: 8px 0 4px 0; color: #1e293b; text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 34px; line-height: 1.3; }
-        .product-price { font-weight: 700; color: #ef4444; font-size: 14px; margin-bottom: 8px; text-align: left; }
-        .btn-buy { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 8px 4px; width: 100%; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; }
-        .modal-content { background-color: white; padding: 20px; border-radius: 20px; width: 92%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto; }
-        .close-btn { position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer; color: #94a3b8; }
-        .price-details { text-align: left; background-color: #f1f5f9; padding: 12px; border-radius: 12px; margin: 12px 0; }
-        .price-text { font-weight: 700; color: #1e293b; font-size: 16px; text-align: center; margin-bottom: 4px; }
-        .product-views-text { color: #3b82f6; font-size: 12px; font-weight: 600; margin-bottom: 10px; text-align: center; }
-        .price-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: #475569; }
-        .total-text { color: #10b981; font-size: 16px; font-weight: 700; margin-top: 8px; border-top: 1px dashed #cbd5e1; padding-top: 8px; display: flex; justify-content: space-between; }
-        .modal-bank-card { background: #f8fafc; border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid #e2e8f0; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #f8fafc; color: #1e293b; padding-bottom: 40px; }
+        
+        /* 1. Дээд талын Цагаан Навбар + Хайх хэсэг */
+        .navbar {
+            background-color: white;
+            width: 100%;
+            padding: 12px 4%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            gap: 15px;
+        }
+        .nav-logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        /* Шинэ хайлтын хэсгийн дизайн */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 8px 14px 8px 36px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* 2. Тансаг гоё Баннер хэсэг */
+        .hero-section {
+            width: 94%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: #f1f3f2;
+            background-image: url('https://img.magnific.com/premium-photo/interior-design-with-green-plant-white-table-blank-wall-background_1070374-2698.jpg?semt=ais_hybrid&w=740&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 24px;
+            padding: 60px 6%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 380px;
+            position: relative;
+        }
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+        .btn-hero {
+            background-color: #0f172a;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-hero:hover { background-color: #1e293b; }
+
+        /* Бүтээгдэхүүний үндсэн хэсэг */
+        .main-container {
+            width: 94%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0 15px 0;
+            padding: 0 4px;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .view-all-link {
+            font-size: 13px;
+            color: #475569;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Барааны жагсаалтын Grid */
+        .product-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; width: 100% !important; }
+        @media (min-width: 768px) { .product-container { grid-template-columns: repeat(4, 1fr) !important; gap: 20px !important; } }
+        
+        /* Барааны картны дизайн */
+        .product-card { background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 12px; display: flex !important; flex-direction: column !important; justify-content: space-between; height: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.01); position: relative; transition: transform 0.2s; }
+        .product-card:hover { transform: translateY(-2px); }
+        
+        /* Зүрхэн товчлуурын загвар */
+        .wishlist-btn { position: absolute; top: 20px; right: 20px; background: white; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #94a3b8; box-shadow: 0 2px 6px rgba(0,0,0,0.05); cursor: pointer; transition: color 0.2s; }
+        .wishlist-btn.active { color: #ef4444 !important; }
+
+        .product-card img { width: 100% !important; height: 150px !important; object-fit: cover; border-radius: 12px; background-color: #f8fafc; }
+        @media (min-width: 768px) { .product-card img { height: 200px !important; } }
+        
+        .product-info { padding: 4px 2px 0 2px; }
+        .product-title { font-size: 14px; font-weight: 600; margin: 10px 0 4px 0; color: #1e293b; text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px; line-height: 1.3; }
+        .product-price { font-weight: 700; color: #0f172a; font-size: 16px; margin: 8px 0 12px 0; text-align: left; }
+        
+        .btn-buy { background: #0f172a; color: white; border: none; padding: 10px 0; width: 100%; border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-buy:hover { background: #1e293b; }
+
+        /* Модал цонхны дизайн */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); justify-content: center; align-items: center; }
+        .modal-content { background-color: white; padding: 24px; border-radius: 24px; width: 92%; max-width: 420px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .close-btn { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #94a3b8; }
+        .price-details { text-align: left; background-color: #f8fafc; padding: 16px; border-radius: 16px; margin: 16px 0; border: 1px solid #f1f5f9; }
+        .price-text { font-weight: 700; color: #0f172a; font-size: 16px; text-align: center; margin-bottom: 4px; }
+        .product-views-text { color: #2563eb; font-size: 12px; font-weight: 600; margin-bottom: 12px; text-align: center; }
+        .price-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: #64748b; }
+        .total-text { color: #10b981; font-size: 16px; font-weight: 700; margin-top: 10px; border-top: 1px dashed #e2e8f0; padding-top: 10px; display: flex; justify-content: space-between; }
+        .modal-bank-card { background: #f8fafc; border-radius: 16px; padding: 14px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
         .bank-info-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; }
         .bank-info-row:last-child { margin-bottom: 0; }
         .bank-info-label { color: #64748b; }
-        .bank-info-value { font-weight: 700; color: #1e293b; }
-        .btn-copy { background-color: white; border: 1px solid #cbd5e1; padding: 1px 4px; font-size: 10px; border-radius: 4px; cursor: pointer; margin-left: 4px; }
-        .phone-input-group { margin-bottom: 12px; text-align: left; }
-        .phone-input-group label { display: block; font-size: 11px; font-weight: bold; color: #1e293b; margin-bottom: 4px; text-transform: uppercase; }
-        .phone-input-group input { width: 100%; padding: 10px; border: 2px solid #10b981; border-radius: 8px; font-size: 14px; outline: none; font-weight: bold; }
-        .address-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+        .bank-info-value { font-weight: 700; color: #0f172a; }
+        .btn-copy { background-color: white; border: 1px solid #cbd5e1; padding: 2px 6px; font-size: 10px; border-radius: 6px; cursor: pointer; margin-left: 4px; font-weight: 600; }
+        .phone-input-group { margin-bottom: 14px; text-align: left; }
+        .phone-input-group label { display: block; font-size: 11px; font-weight: 700; color: #0f172a; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .phone-input-group input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; font-weight: 600; transition: border 0.2s; }
+        .phone-input-group input:focus { border-color: #0f172a; }
+        .address-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
         .address-group { text-align: left; }
-        .address-group label { display: block; font-size: 10px; font-weight: bold; color: #1e293b; margin-bottom: 2px; text-transform: uppercase; }
-        .address-group input { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; font-weight: bold; }
-        .btn-close-modal { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 14px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
+        .address-group label { display: block; font-size: 10px; font-weight: 700; color: #0f172a; margin-bottom: 4px; text-transform: uppercase; }
+        .address-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; font-weight: 600; }
+        .btn-close-modal { background: #0f172a; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 14px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15); }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>TEMKA SHOPP</h1>
-        <p>Ирээдүйн ухаалаг онлайн дэлгүүр</p>
-    </div>
+    <nav class="navbar">
+        <a href="#" class="nav-logo">T&E Shopp</a>
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Бараа хайх..." oninput="window.filterProducts()">
+        </div>
+    </nav>
 
-    <div class="section-title">Манай бүтээгдэхүүнүүд</div>
+    <header class="hero-section">
+        <h1>T&E Shopp</h1>
+        <button class="btn-hero" onclick="document.getElementById('homeProductGrid').scrollIntoView({behavior: 'smooth'});">
+            Бүтээгдэхүүн үзэх <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </header>
 
-    <div class="product-container" id="homeProductGrid">
-        <p style='color:#64748b; font-size:14px;'>Барааг ачаалж байна...</p>
-    </div>
+    <main class="main-container">
+        <div class="section-header">
+            <h2 class="section-title">Манай бүтээгдэхүүнүүд</h2>
+            <a href="#" class="view-all-link">Бүгдийг харах <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></a>
+        </div>
+
+        <div class="product-container" id="homeProductGrid">
+            <p style='color:#64748b; font-size:14px; padding: 20px 0;'>Барааг ачаалж байна...</p>
+        </div>
+    </main>
 
     <div id="orderModal" class="modal">
         <div class="modal-content">
@@ -70,7 +219,7 @@
                 </div>
                 <div class="price-row">
                     <span>Хүргэлт:</span>
-                    <span style="color: #3b82f6;">+3,000₮</span>
+                    <span style="color: #2563eb;">+3,000₮</span>
                 </div>
                 <div class="total-text">
                     <span>Нийт дүн:</span>
@@ -81,7 +230,7 @@
             <div class="modal-bank-card">
                 <div class="bank-info-row">
                     <span class="bank-info-label">Банк:</span>
-                    <span class="bank-info-value" style="color: #1d4ed8;">ХХБ (TDB)</span>
+                    <span class="bank-info-value" style="color: #2563eb;">ХХБ (TDB)</span>
                 </div>
                 <div class="bank-info-row">
                     <span class="bank-info-label">Данс:</span>
@@ -105,23 +254,23 @@
                 <input type="number" id="userPhone" placeholder="Жишээ: 99112233">
             </div>
 
-            <div style="text-align: left; margin-bottom: 4px;"><label style="font-size: 11px; font-weight: bold; color: #1e293b; text-transform: uppercase;">2. Хүргэлтийн хаяг:</label></div>
+            <div style="text-align: left; margin-bottom: 4px;"><label style="font-size: 11px; font-weight: bold; color: #0f172a; text-transform: uppercase;">2. Хүргэлтийн хаяг:</label></div>
             <div class="address-grid">
                 <div class="address-group">
                     <label>Дүүрэг:</label>
-                    <input type="text" id="addrDistrict" placeholder="БГД, БЗД гэх мэт">
+                    <input type="text" id="addrDistrict" placeholder="БГД, БЗД">
                 </div>
                 <div class="address-group">
                     <label>Хороо:</label>
-                    <input type="text" id="addrKhoroo" placeholder="3-р хороо гэх мэт">
+                    <input type="text" id="addrKhoroo" placeholder="3-р хороо">
                 </div>
                 <div class="address-group">
                     <label>Байр/Хороолол:</label>
-                    <input type="text" id="addrBuilding" placeholder="12-р байр гэх мэт">
+                    <input type="text" id="addrBuilding" placeholder="12-р байр">
                 </div>
                 <div class="address-group">
                     <label>Тоот:</label>
-                    <input type="text" id="addrDoor" placeholder="45 тоот гэх мэт">
+                    <input type="text" id="addrDoor" placeholder="45 тоот">
                 </div>
             </div>
 
@@ -160,32 +309,69 @@
         let currentActiveProdId = "";
         let currentActiveProdName = "";
         let currentActiveProdPrice = 0;
+        let allProductsArray = []; // Бүх барааг хадгалах жагсаалт (Хайлт хийхэд ашиглана)
 
         window.onload = function() {
+            database.ref('products').on('value', function(snapshot) {
+                allProductsArray = []; 
+                if (snapshot.exists()) {
+                    snapshot.forEach(function(childSnapshot) {
+                        allProductsArray.push({
+                            id: childSnapshot.key,
+                            data: childSnapshot.val()
+                        });
+                    });
+                }
+                window.renderProducts(allProductsArray); // Бараануудыг дэлгэцэнд хэвлэх
+            });
+        };
+
+        // Барааг дэлгэцэнд зурах үндсэн функц
+        window.renderProducts = function(productsList) {
             var grid = document.getElementById("homeProductGrid");
             if (!grid) return;
-            
-            database.ref('products').on('value', function(snapshot) {
-                grid.innerHTML = ""; 
-                if (!snapshot.exists()) {
-                    grid.innerHTML = "<p>Бараа олдсонгүй.</p>";
-                    return;
-                }
-                snapshot.forEach(function(childSnapshot) {
-                    var prodId = childSnapshot.key;
-                    var prod = childSnapshot.val();
-                    var numericPrice = parseInt(prod.price ? prod.price.toString().replace(/[^0-9]/g, '') : 0) || 0;
-                    
-                    var card = document.createElement("div");
-                    card.className = "product-card";
-                    card.innerHTML =
-                        '<img src="' + (prod.image || 'https://via.placeholder.com/200') + '" alt="' + prod.name + '">' +
+            grid.innerHTML = "";
+
+            if (productsList.length === 0) {
+                grid.innerHTML = "<p style='color:#64748b; font-size:14px; padding: 20px 4px;'>Хайлтын илэрц олдсонгүй.</p>";
+                return;
+            }
+
+            productsList.forEach(function(item) {
+                var prodId = item.id;
+                var prod = item.data;
+                var numericPrice = parseInt(prod.price ? prod.price.toString().replace(/[^0-9]/g, '') : 0) || 0;
+                
+                var card = document.createElement("div");
+                card.className = "product-card";
+                
+                card.innerHTML =
+                    '<button class="wishlist-btn" onclick="window.toggleWishlist(this)"><i class="fa-solid fa-heart"></i></button>' +
+                    '<img src="' + (prod.image || 'https://via.placeholder.com/200') + '" alt="' + prod.name + '">' +
+                    '<div class="product-info">' +
                         '<h3 class="product-title">' + prod.name + '</h3>' +
                         '<p class="product-price">' + numericPrice.toLocaleString() + '₮</p>' +
-                        '<button class="btn-buy" onclick="window.openModal(\'' + prodId + '\', \'' + prod.name + '\', \'' + numericPrice + '\')">Захиалах</button>';
-                    grid.appendChild(card);
-                });
+                    '</div>' +
+                    '<button class="btn-buy" onclick="window.openModal(\'' + prodId + '\', \'' + prod.name + '\', \'' + numericPrice + '\')"><i class="fa-solid fa-bag-shopping"></i> Захиалах</button>';
+                grid.appendChild(card);
             });
+        };
+
+        // Шинэ функц: Хайлт хийх үед шүүх ажиллагаа
+        window.filterProducts = function() {
+            var query = document.getElementById("searchInput").value.toLowerCase().trim();
+            
+            // Нэрэнд нь хайсан үг орсон бараануудыг шүүнэ
+            var filtered = allProductsArray.filter(function(item) {
+                var name = item.data.name ? item.data.name.toLowerCase() : "";
+                return name.includes(query);
+            });
+            
+            window.renderProducts(filtered);
+        };
+
+        window.toggleWishlist = function(btn) {
+            btn.classList.toggle('active');
         };
 
         window.openModal = function(prodId, name, price) {
@@ -199,7 +385,6 @@
             document.getElementById("userPhone").value = "";
             document.getElementById("userReceipt").value = "";
             
-            // Хаягийн талбаруудыг цэвэрлэх
             document.getElementById("addrDistrict").value = "";
             document.getElementById("addrKhoroo").value = "";
             document.getElementById("addrBuilding").value = "";
@@ -222,7 +407,6 @@
             var orderCode = document.getElementById("modalOrderCode").innerText;
             var receiptInput = document.getElementById("userReceipt");
             
-            // Хаягийн мэдээллүүдийг авч байна
             var district = document.getElementById("addrDistrict").value.trim();
             var khoroo = document.getElementById("addrKhoroo").value.trim();
             var building = document.getElementById("addrBuilding").value.trim();
@@ -247,7 +431,6 @@
             var totalAmount = (currentActiveProdPrice + 3000).toLocaleString() + "₮";
             var fullAddress = district + ", " + khoroo + ", " + building + ", " + door;
 
-            // Telegram руу очих текстэнд ХАЯГ-ыг нэмж өгөв
             var textMessage = "🔔 ШИНЭ ЗАХИАЛГА ИРЛЭЭ!\n\n📞 Утас: " + phoneInput + "\n📦 Бараа: " + currentActiveProdName + "\n📍 Хаяг: " + fullAddress + "\n💰 Нийт дүн: " + totalAmount + "\n🔢 Гүйлгээний утга: " + orderCode;
 
             var formData = new FormData();
