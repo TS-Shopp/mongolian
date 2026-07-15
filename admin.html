@@ -393,15 +393,19 @@
             });
         };
 
-        // НАЙДВАРТАЙ УСТГАХ ФУНКЦҮҮД (Утсан дээр шууд ажиллахаар засав)
+        // НАЙДВАРТАЙ УСТГАХ ФУНКЦҮҮД (Утсан дээр шууд ажиллахаар confirm-ыг бүрэн авч хаяв)
         window.deleteProduct = function(prodId) {
-            if (confirm("Барааг устгах уу?")) {
-                database.ref('products/' + prodId).remove();
-            }
+            // Утсан дээр гацдаг тул confirm() асуултыг арилгаж шууд устгадаг болгов
+            database.ref('products/' + prodId).remove()
+            .then(function() {
+                alert("Барааг амжилттай устгалаа! 🗑️");
+            })
+            .catch(function(err) {
+                alert("Алдаа гарлаа: " + err.message);
+            });
         };
 
         window.completeOrder = function(orderId) {
-            // Утсан дээр confirm() цонх гацдаг тул шууд устгах үйлдлийг найдвартай хийнэ
             database.ref('orders/' + orderId).remove()
             .then(function() {
                 alert("Захиалга амжилттай хаагдлаа! 🤝");
