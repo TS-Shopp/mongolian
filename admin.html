@@ -250,12 +250,10 @@
 
         // ХУУДАС АЧААЛАГДАХАД НУУЦ ҮГ ШАЛГАХ
         window.addEventListener('DOMContentLoaded', (event) => {
-            // Өмнө нь зөв нэвтэрсэн бол шууд оруулна
             if(localStorage.getItem("admin_authenticated") === "true") {
                 showAdminPanel();
             }
             
-            // Энтер дарахад нэвтэрдэг болгох
             document.getElementById("adminPasswordInput").addEventListener("keyup", function(event) {
                 if (event.key === "Enter") { window.checkAdminPassword(); }
             });
@@ -264,10 +262,10 @@
         // НҮҮЦ ҮГ ШАЛГАХ ФУНКЦ
         window.checkAdminPassword = function() {
             var enteredPass = document.getElementById("adminPasswordInput").value;
-            var correctPass = "20110917@"; // Таны хэлсэн нууц үг
+            var correctPass = "20110917@";
 
             if(enteredPass === correctPass) {
-                localStorage.setItem("admin_authenticated", "true"); // Хөтөч дээр сануулах
+                localStorage.setItem("admin_authenticated", "true");
                 showAdminPanel();
             } else {
                 alert("❌ Нууц үг буруу байна! Дахин оролдоно уу.");
@@ -395,23 +393,22 @@
             });
         };
 
-        // УСТГАХ ФУНКЦҮҮД (window глобал дуудалтыг засав)
+        // НАЙДВАРТАЙ УСТГАХ ФУНКЦҮҮД (Утсан дээр шууд ажиллахаар засав)
         window.deleteProduct = function(prodId) {
-            if (confirm("Устгах уу?")) {
+            if (confirm("Барааг устгах уу?")) {
                 database.ref('products/' + prodId).remove();
             }
         };
 
         window.completeOrder = function(orderId) {
-            if (confirm("Энэ захиалгыг хүргэж дуусгасан тул устгах уу?")) {
-                database.ref('orders/' + orderId).remove()
-                .then(function() {
-                    alert("Захиалга амжилттай хаагдлаа! 🤝");
-                })
-                .catch(function(err) {
-                    alert("Алдаа гарлаа: " + err.message);
-                });
-            }
+            // Утсан дээр confirm() цонх гацдаг тул шууд устгах үйлдлийг найдвартай хийнэ
+            database.ref('orders/' + orderId).remove()
+            .then(function() {
+                alert("Захиалга амжилттай хаагдлаа! 🤝");
+            })
+            .catch(function(err) {
+                alert("Алдаа гарлаа: " + err.message);
+            });
         };
     </script>
 </body>
