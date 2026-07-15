@@ -32,6 +32,13 @@
             white-space: nowrap;
         }
         
+        /* Баруун талын зэрэгцэх хэсэг */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         /* Хайлтын хэсгийн дизайн */
         .search-container {
             position: relative;
@@ -59,6 +66,18 @@
             transform: translateY(-50%);
             color: #94a3b8;
             font-size: 14px;
+        }
+
+        /* Сагсны тоолуур дизайн */
+        .cart-status {
+            font-weight: bold;
+            font-size: 14px;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            white-space: nowrap;
         }
 
         /* 2. Тансаг гоё Баннер хэсэг */
@@ -144,15 +163,56 @@
         /* Дарахад зориулсан курсор */
         .product-clickable-area { cursor: pointer; display: block; width: 100%; }
 
-        .product-card img { width: 100% !important; height: 150px !important; object-fit: cover; border-radius: 12px; background-color: #f8fafc; }
+        .product-card img { width: 100% !important; height: 150px !important; object-fit: cover; border-radius: 12px; background-color: #f8fafc; border: 1px solid #f1f5f9; }
         @media (min-width: 768px) { .product-card img { height: 200px !important; } }
         
         .product-info { padding: 4px 2px 0 2px; }
-        .product-title { font-size: 14px; font-weight: 600; margin: 10px 0 4px 0; color: #1e293b; text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px; line-height: 1.3; }
+        .product-title { font-size: 14px; font-weight: 600; margin: 10px 0 4px 0; color: #1e293b; text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px; line-height: 1.3; text-transform: capitalize; }
         .product-price { font-weight: 700; color: #0f172a; font-size: 16px; margin: 8px 0 12px 0; text-align: left; }
         
-        .btn-buy { background: #0f172a; color: white; border: none; padding: 10px 0; width: 100%; border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        /* Товчлууруудын зэрэгцэх блок */
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        /* Захиалах товч */
+        .btn-buy { 
+            flex: 1.2;
+            background: #0f172a; 
+            color: white; 
+            border: none; 
+            padding: 10px 0; 
+            border-radius: 10px; 
+            font-size: 13px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 4px; 
+        }
         .btn-buy:hover { background: #1e293b; }
+
+        /* Сагслах товч */
+        .btn-cart {
+            flex: 1;
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            padding: 10px 0;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .btn-cart:hover { background: #e2e8f0; }
 
         /* Модал цонхны дизайн */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); justify-content: center; align-items: center; }
@@ -178,20 +238,34 @@
         .address-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; font-weight: 600; }
         .btn-close-modal { background: #0f172a; color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 14px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15); }
 
-        /* Зургийг томруулж харах шинэ Модал (Image Preview) */
+        /* Зургийг томруулж харах Модал */
         .image-preview-modal { display: none; position: fixed; z-index: 1100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); justify-content: center; align-items: center; cursor: pointer; }
         .image-preview-content { max-width: 90%; max-height: 80vh; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); object-fit: contain; animation: zoomIn 0.25s ease-out; }
         .image-preview-title { position: absolute; bottom: 30px; color: white; font-size: 18px; font-weight: 700; background: rgba(15, 23, 42, 0.6); padding: 8px 20px; border-radius: 30px; }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 10px 15px; }
+            .search-container { max-width: 150px; }
+            .nav-logo { font-size: 18px; }
+            .cart-status { font-size: 13px; }
+        }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
         <a href="#" class="nav-logo">T&E Shopp</a>
-        <div class="search-container">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Бараа хайх..." oninput="window.filterProducts()">
+        
+        <div class="nav-right">
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Бараа хайх..." oninput="window.filterProducts()">
+            </div>
+            
+            <a href="cart.html" class="cart-status">
+                <i class="fa-solid fa-cart-shopping"></i> Сагс (<span id="headerCartCount">0</span>)
+            </a>
         </div>
     </nav>
 
@@ -299,6 +373,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
+        // Таны Firebase тохиргоо
         const firebaseConfig = {
             apiKey: "AIzaSyD7htpIxGtVfJ0HGd7-8DVXtwGwj2mHlOQ",
             authDomain: "temka-shop.firebaseapp.com",
@@ -315,6 +390,7 @@
         }
         const database = firebase.database();
 
+        // Telegram Бот тохиргоо
         const TG_BOT_TOKEN = "8791135920:AAEP7B1oC3e4cYbUT3ThHxH6QmHanMzsbdU"; 
         const TG_CHAT_ID = "6759790987"; 
 
@@ -322,8 +398,12 @@
         let currentActiveProdName = "";
         let currentActiveProdPrice = 0;
         let allProductsArray = []; 
+        
+        // Сагсны өгөгдлийг унших
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
         window.onload = function() {
+            window.updateCartCount();
             database.ref('products').on('value', function(snapshot) {
                 allProductsArray = []; 
                 if (snapshot.exists()) {
@@ -338,6 +418,32 @@
             });
         };
 
+        // Дээд талын Сагсны тоог шинэчлэх функц
+        window.updateCartCount = function() {
+            const countElement = document.getElementById('headerCartCount');
+            if (countElement) {
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                countElement.textContent = totalItems;
+            }
+        };
+
+        // Сагсанд зурагтай нь хамт хадгалах шинэчилсэн Сагслах функц
+        window.addToCart = function(name, price, imgUrl, event) {
+            if (event) event.stopPropagation(); // Карт дарагдахаас сэргийлнэ
+            
+            const existingItem = cart.find(item => item.name === name);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                // 'image' талбарт барааны зурагны URL-ийг цуг хадгална
+                cart.push({ name: name, price: parseInt(price), image: imgUrl, quantity: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            window.updateCartCount();
+            alert(name + " сагсанд амжилттай нэмэгдлээ! 🛒");
+        };
+
+        // Барааг зурах функц
         window.renderProducts = function(productsList) {
             var grid = document.getElementById("homeProductGrid");
             if (!grid) return;
@@ -357,9 +463,8 @@
                 var card = document.createElement("div");
                 card.className = "product-card";
                 
-                // Барааны зураг болон нэр дээр дарахад зураг томруулж хардаг болгож өөрчлөв
                 card.innerHTML =
-                    '<button class="wishlist-btn" onclick="window.toggleWishlist(this)"><i class="fa-solid fa-heart"></i></button>' +
+                    '<button class="wishlist-btn" onclick="window.toggleWishlist(this, event)"><i class="fa-solid fa-heart"></i></button>' +
                     '<div class="product-clickable-area" onclick="window.openImagePreview(\'' + imgUrl + '\', \'' + prod.name.replace(/'/g, "\\'") + '\', \'' + prodId + '\')">' +
                         '<img src="' + imgUrl + '" alt="' + prod.name + '">' +
                         '<div class="product-info">' +
@@ -367,18 +472,20 @@
                             '<p class="product-price">' + numericPrice.toLocaleString() + '₮</p>' +
                         '</div>' +
                     '</div>' +
-                    '<button class="btn-buy" onclick="window.openModal(\'' + prodId + '\', \'' + prod.name.replace(/'/g, "\\'") + '\', \'' + numericPrice + '\')"><i class="fa-solid fa-bag-shopping"></i> Захиалах</button>';
+                    '<div class="btn-group">' +
+                        '<button class="btn-buy" onclick="window.openModal(\'' + prodId + '\', \'' + prod.name.replace(/'/g, "\\'") + '\', \'' + numericPrice + '\', event)"><i class="fa-solid fa-bag-shopping"></i> Захиалах</button>' +
+                        '<button class="btn-cart" onclick="window.addToCart(\'' + prod.name.replace(/'/g, "\\'") + '\', ' + numericPrice + ', \'' + imgUrl + '\', event)">Сагслах</button>' +
+                    '</div>';
                 grid.appendChild(card);
             });
         };
 
-        // ШИНЭ ФУНКЦ: Зургийг томруулж үзүүлэх болон үзсэн тоог тоолох
+        // Зургийг томруулах
         window.openImagePreview = function(imgSrc, title, prodId) {
             document.getElementById("previewModalImg").src = imgSrc;
             document.getElementById("previewModalTitle").innerText = title;
             document.getElementById("imagePreviewModal").style.display = "flex";
             
-            // Барааг товшиж үзэх үед цаанаа датабаазад үзсэн тоо нь нэмэгдэнэ
             var viewRef = database.ref('products/' + prodId + '/views');
             viewRef.transaction(function(v) { return (v || 0) + 1; });
         };
@@ -387,6 +494,7 @@
             document.getElementById("imagePreviewModal").style.display = "none";
         };
 
+        // Хайх функц
         window.filterProducts = function() {
             var query = document.getElementById("searchInput").value.toLowerCase().trim();
             var filtered = allProductsArray.filter(function(item) {
@@ -396,11 +504,14 @@
             window.renderProducts(filtered);
         };
 
-        window.toggleWishlist = function(btn) {
+        window.toggleWishlist = function(btn, event) {
+            if (event) event.stopPropagation();
             btn.classList.toggle('active');
         };
 
-        window.openModal = function(prodId, name, price) {
+        // Модал нээх (Шууд Захиалах товч)
+        window.openModal = function(prodId, name, price, event) {
+            if (event) event.stopPropagation();
             currentActiveProdId = prodId;
             currentActiveProdName = name;
             currentActiveProdPrice = parseInt(price) || 0;
@@ -422,6 +533,7 @@
             document.getElementById("orderModal").style.display = "flex";
         };
 
+        // Шууд захиалга илгээх
         window.submitOrder = function() {
             var phoneInput = document.getElementById("userPhone").value.trim();
             var orderCode = document.getElementById("modalOrderCode").innerText;
