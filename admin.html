@@ -99,7 +99,7 @@
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input { 
+        .form-group input, .form-group select { 
             width: 100%; 
             padding: 12px; 
             border: 1px solid #21262d; 
@@ -109,7 +109,7 @@
             color: #ffffff; 
             outline: none; 
         }
-        .form-group input:focus { border-color: #8b5cf6; }
+        .form-group input:focus, .form-group select:focus { border-color: #8b5cf6; }
 
         .file-input-wrapper { 
             background-color: #060709; 
@@ -190,10 +190,11 @@
         .order-row b { color: #ffffff; }
         .order-code-badge { background: #161b22; border: 1px solid #30363d; padding: 2px 8px; border-radius: 6px; font-size: 11px; color: #ef4444; font-weight: bold; }
 
-        .stats-container { margin-top: 6px; display: flex; gap: 8px; }
+        .stats-container { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
         .stat-badge { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
         .stat-views { background-color: #1e293b; color: #38bdf8; }
         .stat-orders { background-color: #2e1065; color: #c084fc; }
+        .stat-category { background-color: #161b22; border: 1px solid #30363d; color: #f59e0b; }
 
         .btn-delete { 
             background-color: rgba(239, 68, 68, 0.15); 
@@ -263,7 +264,18 @@
 
             <div class="form-group">
                 <label>Бүтээгдэхүүний нэр</label>
-                <input type="text" id="prodName" placeholder="Жишээ: Хар футболк">
+                <input type="text" id="prodName" placeholder="Жишээ: Хар футболк эсвэл Кроссовк">
+            </div>
+
+            <div class="form-group">
+                <label>Ангилал сонгох</label>
+                <select id="prodCategory">
+                    <option value="Гутал">👟 Гутал</option>
+                    <option value="Технологи">📱 Технологи</option>
+                    <option value="Хувцас">👕 Хувцас</option>
+                    <option value="Аксессуар">⌚ Аксессуар</option>
+                    <option value="Бусад">📦 Бусад</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -399,8 +411,9 @@
                             '<div class="prod-name">' + prod.name + '</div>' +
                             '<div class="prod-price">' + parseInt(prod.price || 0).toLocaleString() + '₮</div>' +
                             '<div class="stats-container">' +
-                                '<span class="stat-badge stat-views"><i class="fa-regular fa-eye"></i> Үзсэн: ' + (prod.views || 0) + '</span>' +
-                                '<span class="stat-badge stat-orders"><i class="fa-solid fa-cart-shopping"></i> Захиалга: ' + (prod.orders || 0) + '</span>' +
+                                '<span class="stat-badge stat-category">🏷️ ' + (prod.category || 'Гутал') + '</span>' +
+                                '<span class="stat-badge stat-views"><i class="fa-regular fa-eye"></i> ' + (prod.views || 0) + '</span>' +
+                                '<span class="stat-badge stat-orders"><i class="fa-solid fa-cart-shopping"></i> ' + (prod.orders || 0) + '</span>' +
                             '</div>' +
                         '</div>' +
                         '<button class="btn-delete" onclick="window.deleteProduct(\'' + prodId + '\')"><i class="fa-solid fa-trash-can"></i></button>';
@@ -439,6 +452,7 @@
         window.addProduct = function() {
             var name = document.getElementById("prodName").value.trim();
             var price = document.getElementById("prodPrice").value.trim();
+            var category = document.getElementById("prodCategory").value;
             var btn = document.getElementById("btnAddProduct");
 
             if (selectedBase64Images.length === 0) { alert("Барааны зургийг оруулна уу!"); return; }
@@ -450,6 +464,7 @@
             database.ref('products').push({
                 images: selectedBase64Images,
                 name: name,
+                category: category,
                 price: numericPrice,
                 views: 0,
                 orders: 0
