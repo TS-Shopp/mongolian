@@ -847,7 +847,7 @@
         let currentImageIndex = 0;
         let currentActiveTitle = "";
 
-        // Safely initialize cart from localStorage
+        // Сагсыг уншиж авах хэсэг
         let cart = [];
         try {
             cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -888,18 +888,15 @@
             btn.closest('.product-card').setAttribute('data-selected-size', size);
         };
 
-        // 🚨 ЗАССАН: LocalStorage-д Base64 зураг чихэгдэж QuotaExceededError гарахаас бүрэн хамгаалсан addToCart
+        // 🚨 ТОМ БОЛЖ ДҮҮРДЭГ АСУУДЛЫГ ЗАССАН addToCart
         window.addToCart = function(name, price, imgUrl, prodId, btnElem, event) {
             if (event) event.stopPropagation(); 
 
             const card = btnElem ? btnElem.closest('.product-card') : null;
             const chosenSize = card ? (card.getAttribute('data-selected-size') || 'M') : 'M';
 
-            // Барааны урт Base64 зураг сагсанд чихэгдэж дүүрэхээс хамгаална
-            let safeImg = imgUrl;
-            if (safeImg && safeImg.length > 300) {
-                safeImg = 'https://via.placeholder.com/200';
-            }
+            // Зөвхөн богино URL байвал хадгална, урт Base64 байвал хоосон үлдээнэ
+            let safeImg = (imgUrl && imgUrl.startsWith('http')) ? imgUrl : '';
 
             let existingItem = cart.find(item => item.id === prodId && item.size === chosenSize);
             if (existingItem) {
@@ -921,7 +918,6 @@
                 alert(name + " (" + chosenSize + ") сагсанд амжилттай нэмэгдлээ! 🛒");
             } catch (e) {
                 console.error("Storage Error Caught:", e);
-                // Хэрэв дүүрвэл сагсыг суллаж зөвхөн одоогийн нэмсэн барааг хадгална
                 localStorage.removeItem('cart');
                 cart = [{ 
                     id: prodId, 
