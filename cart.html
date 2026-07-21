@@ -202,7 +202,7 @@
         </div>
         <div class="summary-row">
             <span>Хүргэлтийн төлбөр:</span>
-            <span style="color: #a78bfa;">+3,000₮</span>
+            <span style="color: #10b981; font-weight: bold;">хүргэлт үнэгүй</span>
         </div>
         <div class="summary-total">
             <span>Нийт төлөх дүн:</span>
@@ -224,7 +224,7 @@
                 </div>
                 <div class="price-row">
                     <span>Хүргэлт:</span>
-                    <span style="color: #a78bfa;">+3,000₮</span>
+                    <span style="color: #10b981; font-weight: bold;">хүргэлт үнэгүй</span>
                 </div>
                 <div class="total-text">
                     <span>Нийт дүн:</span>
@@ -324,9 +324,14 @@
         const TG_BOT_TOKEN = "8791135920:AAEP7B1oC3e4cYbUT3ThHxH6QmHanMzsbdU"; 
         const TG_CHAT_ID = "6759790987"; 
 
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cart = [];
+        try {
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+        } catch (e) {
+            cart = [];
+        }
+
         let firebaseProductsCache = [];
-        
         let currentImagesArray = [];
         let currentImageIndex = 0;
         let currentActiveTitle = "";
@@ -352,7 +357,7 @@
             listContainer.innerHTML = "";
             calculatedSubtotal = 0; 
 
-            if (cart.length === 0) {
+            if (!cart || cart.length === 0) {
                 listContainer.innerHTML = "<p style='color:#6e7681; font-size:14px; text-align:center; padding: 40px 0;'>Сагс хоосон байна.</p>";
                 if (summaryBlock) summaryBlock.style.display = "none";
                 return;
@@ -361,7 +366,7 @@
             if (summaryBlock) summaryBlock.style.display = "block";
 
             cart.forEach(function(item, index) {
-                const itemTotal = item.price * item.quantity;
+                const itemTotal = (item.price || 0) * (item.quantity || 1);
                 calculatedSubtotal += itemTotal;
 
                 let mainImg = item.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=600&auto=format&fit=crop';
@@ -395,7 +400,15 @@
             });
 
             document.getElementById("summarySubtotal").innerText = calculatedSubtotal.toLocaleString() + "₮";
-            document.getElementById("summaryGrandTotal").innerText = (calculatedSubtotal + 3000).toLocaleString() + "₮";
+            document.getElementById("summaryGrandTotal").innerText = calculatedSubtotal.toLocaleString() + "₮";
+        };
+
+        window.saveCart = function() {
+            try {
+                localStorage.setItem('cart', JSON.stringify(cart));
+            } catch (e) {
+                console.error("Local Storage quota exceeded", e);
+            }
         };
 
         window.changeQuantity = function(index, delta) {
@@ -403,13 +416,13 @@
             if (cart[index].quantity <= 0) {
                 cart.splice(index, 1);
             }
-            localStorage.setItem('cart', JSON.stringify(cart));
+            window.saveCart();
             window.renderCart(); 
         };
 
         window.removeFromCart = function(index) {
             cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
+            window.saveCart();
             window.renderCart();
         };
 
@@ -441,7 +454,7 @@
 
         window.openOrderModal = function() {
             document.getElementById("modalProductPriceOnly").innerText = calculatedSubtotal.toLocaleString() + "₮";
-            document.getElementById("modalTotalWithShipping").innerText = (calculatedSubtotal + 3000).toLocaleString() + "₮";
+            document.getElementById("modalTotalWithShipping").innerText = calculatedSubtotal.toLocaleString() + "₮";
             
             document.getElementById("userEmail").value = "";
             document.getElementById("userPhone").value = "";
@@ -451,7 +464,7 @@
             document.getElementById("addrBuilding").value = "";
             document.getElementById("addrDoor").value = "";
 
-            var randomCode = "TE-" + Math.floor(1000 + Math.random() * 9000);
+            var randomCode = "TS-" + Math.floor(1000 + Math.random() * 9000);
             document.getElementById("modalOrderCode").innerText = randomCode;
 
             document.getElementById("orderModal").style.display = "flex";
@@ -486,13 +499,12 @@
             }
 
             var file = receiptInput.files[0];
-            var totalAmount = (calculatedSubtotal + 3000).toLocaleString() + "₮";
+            var totalAmount = calculatedSubtotal.toLocaleString() + "₮";
             var fullAddress = district + ", " + khoroo + ", " + building + ", " + door;
 
-            // Сагсан дахь бүх барааг нэр, хэмжээ, тоо ширхэгтэй нь жагсаах
             let itemsText = cart.map(item => item.name + " [" + (item.size || 'M') + "] (" + item.quantity + "ш)").join(", ");
 
-            var textMessage = "🔔 САГСНЫ ШИНЭ ЗАХИАЛГА!\n\n📧 Gmail: " + emailInput + "\n📞 Утас: " + phoneInput + "\n📦 Бараанууд: " + itemsText + "\n📍 Хаяг: " + fullAddress + "\n💰 Нийт дүн: " + totalAmount + "\n🔢 Гүйлгээний утга: " + orderCode;
+            var textMessage = "🔔 САГСНЫ ШИНЭ ЗАХИАЛГА!\n\n📧 Gmail: " + emailInput + "\n📞 Утас: " + phoneInput + "\n📦 Бараанууд: " + itemsText + "\n📍 Хаяг: " + fullAddress + "\n💰 Нийт дүн (Хүргэлт үнэгүй): " + totalAmount + "\n🔢 Гүйлгээний утга: " + orderCode;
 
             var formData = new FormData();
             formData.append("chat_id", TG_CHAT_ID);
@@ -520,7 +532,7 @@
                     });
                     alert("Сагсан дахь захиалга амжилттай илгээгдлээ! Сагсыг хоосоллоо. 👍");
                     cart = [];
-                    localStorage.setItem('cart', JSON.stringify(cart));
+                    window.saveCart();
                     window.closeModal();
                     window.renderCart();
                 } else {
