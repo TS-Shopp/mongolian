@@ -99,7 +99,7 @@
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 11px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input, .form-group select { 
+        .form-group input, .form-group select, .form-group textarea { 
             width: 100%; 
             padding: 12px; 
             border: 1px solid #21262d; 
@@ -108,8 +108,38 @@
             background-color: #060709; 
             color: #ffffff; 
             outline: none; 
+            font-family: inherit;
         }
-        .form-group input:focus, .form-group select:focus { border-color: #8b5cf6; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #8b5cf6; }
+
+        /* Size Checkbox Загвар */
+        .size-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #060709;
+            padding: 12px;
+            border: 1px solid #21262d;
+            border-radius: 10px;
+        }
+        .size-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: #ffffff;
+            cursor: pointer;
+            background: #161b22;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+        }
+        .size-item input[type="checkbox"] {
+            width: auto;
+            accent-color: #8b5cf6;
+            cursor: pointer;
+        }
 
         .file-input-wrapper { 
             background-color: #060709; 
@@ -185,6 +215,7 @@
         .prod-info, .order-info { flex-grow: 1; text-align: left; width: 100%; }
         .prod-name { font-size: 14px; font-weight: 700; color: #ffffff; }
         .prod-price { font-size: 14px; font-weight: 800; color: #a78bfa; margin-top: 2px; }
+        .prod-desc { font-size: 12px; color: #8b949e; margin-top: 4px; line-height: 1.3; }
 
         .order-row { font-size: 13px; color: #cbd5e1; margin-bottom: 4px; }
         .order-row b { color: #ffffff; }
@@ -195,14 +226,32 @@
         .stat-views { background-color: #1e293b; color: #38bdf8; }
         .stat-orders { background-color: #2e1065; color: #c084fc; }
         .stat-category { background-color: #161b22; border: 1px solid #30363d; color: #f59e0b; }
+        .stat-status-in { background-color: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .stat-status-out { background-color: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .stat-sizes { background-color: #312e81; color: #a5b4fc; }
+
+        .prod-actions { display: flex; flex-direction: column; gap: 6px; }
+
+        .btn-edit { 
+            background-color: rgba(56, 189, 248, 0.15); 
+            color: #38bdf8; 
+            border: 1px solid rgba(56, 189, 248, 0.3); 
+            padding: 6px 10px; 
+            border-radius: 8px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .btn-edit:hover { background-color: #38bdf8; color: white; }
 
         .btn-delete { 
             background-color: rgba(239, 68, 68, 0.15); 
             color: #ef4444; 
             border: 1px solid rgba(239, 68, 68, 0.3); 
-            padding: 8px 14px; 
+            padding: 6px 10px; 
             border-radius: 8px; 
-            font-size: 12px; 
+            font-size: 11px; 
             font-weight: 700; 
             cursor: pointer; 
             transition: 0.2s;
@@ -234,6 +283,43 @@
             border: 1px solid #21262d; 
             width: 100%;
         }
+
+        /* Edit Modal (Засах цонх) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        .modal-box {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 { font-size: 18px; color: #ffffff; }
+        .btn-close-modal {
+            background: none; border: none; color: #8b949e; font-size: 20px; cursor: pointer;
+        }
+        .btn-save-edit {
+            background: #10b981; color: white; border: none; padding: 12px; width: 100%;
+            border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 10px;
+        }
+        .btn-save-edit:hover { background: #059669; }
     </style>
 </head>
 <body>
@@ -279,8 +365,38 @@
             </div>
 
             <div class="form-group">
-                <label>Бүтээгдэхүүний үнэ</label>
+                <label>Бэлэн байгаа хэмжээ (Sizes)</label>
+                <div class="size-checkboxes">
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="S"> S</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="M"> M</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="L"> L</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="XL"> XL</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="2XL"> 2XL</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="38"> 38</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="39"> 39</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="40"> 40</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="41"> 41</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="42"> 42</label>
+                    <label class="size-item"><input type="checkbox" name="prodSize" value="43"> 43</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Бүтээгдэхүүний үнэ (₮)</label>
                 <input type="text" id="prodPrice" placeholder="Жишээ: 45,000">
+            </div>
+
+            <div class="form-group">
+                <label>Бүтээгдэхүүний тайлбар</label>
+                <textarea id="prodDesc" placeholder="Хэмжээ, материал, онцлог шинжийг энд бичнэ үү..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Барааны төлөв</label>
+                <select id="prodStatus">
+                    <option value="in_stock">✅ Бэлэн байгаа</option>
+                    <option value="out_of_stock">❌ Дууссан (Out of Stock)</option>
+                </select>
             </div>
 
             <button class="btn-add" id="btnAddProduct" onclick="window.addProduct()">＋ Шинэ бараа нэмэх</button>
@@ -294,6 +410,65 @@
         <div class="section-title"><i class="fa-solid fa-chart-simple" style="color: #38bdf8;"></i> Барааны хандалт & Статистик</div>
         <div class="product-list" id="adminProductList">
             <p class="empty-text">Ачаалж байна...</p>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>✏️ Бараа засах</h3>
+                <button class="btn-close-modal" onclick="window.closeEditModal()">✕</button>
+            </div>
+            <input type="hidden" id="editProdId">
+            
+            <div class="form-group">
+                <label>Барааны нэр</label>
+                <input type="text" id="editProdName">
+            </div>
+            <div class="form-group">
+                <label>Ангилал</label>
+                <select id="editProdCategory">
+                    <option value="Гутал">👟 Гутал</option>
+                    <option value="Технологи">📱 Технологи</option>
+                    <option value="Хувцас">👕 Хувцас</option>
+                    <option value="Аксессуар">⌚ Аксессуар</option>
+                    <option value="Бусад">📦 Бусад</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Бэлэн байгаа хэмжээ (Sizes)</label>
+                <div class="size-checkboxes">
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="S"> S</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="M"> M</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="L"> L</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="XL"> XL</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="2XL"> 2XL</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="38"> 38</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="39"> 39</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="40"> 40</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="41"> 41</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="42"> 42</label>
+                    <label class="size-item"><input type="checkbox" name="editProdSize" value="43"> 43</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Үнэ (₮)</label>
+                <input type="text" id="editProdPrice">
+            </div>
+            <div class="form-group">
+                <label>Тайлбар</label>
+                <textarea id="editProdDesc"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Төлөв</label>
+                <select id="editProdStatus">
+                    <option value="in_stock">✅ Бэлэн байгаа</option>
+                    <option value="out_of_stock">❌ Дууссан</option>
+                </select>
+            </div>
+            <button class="btn-save-edit" onclick="window.saveProductEdit()">💾 Хадгалах</button>
         </div>
     </div>
 
@@ -316,6 +491,7 @@
         const database = firebase.database();
 
         let selectedBase64Images = [];
+        let allProductsCache = {};
 
         window.addEventListener('DOMContentLoaded', () => {
             if(localStorage.getItem("admin_authenticated") === "true") { showAdminPanel(); }
@@ -394,6 +570,7 @@
             var listDiv = document.getElementById("adminProductList");
             database.ref('products').on('value', function(snapshot) {
                 listDiv.innerHTML = "";
+                allProductsCache = {};
                 if (!snapshot.exists()) { 
                     listDiv.innerHTML = '<p class="empty-text">Бараа байхгүй байна...</p>';
                     return; 
@@ -401,7 +578,15 @@
                 snapshot.forEach(function(childSnapshot) {
                     var prodId = childSnapshot.key;
                     var prod = childSnapshot.val();
+                    allProductsCache[prodId] = prod;
+
                     var mainImg = (prod.images && prod.images.length > 0) ? prod.images[0] : 'https://via.placeholder.com/60';
+                    var isOutOfStock = prod.status === 'out_of_stock';
+                    var statusBadge = isOutOfStock 
+                        ? '<span class="stat-badge stat-status-out">❌ Дууссан</span>' 
+                        : '<span class="stat-badge stat-status-in">✅ Бэлэн</span>';
+
+                    var sizesText = (prod.sizes && prod.sizes.length > 0) ? prod.sizes.join(', ') : 'Байхгүй';
 
                     var row = document.createElement("div");
                     row.className = "admin-prod-card";
@@ -410,13 +595,19 @@
                         '<div class="prod-info">' +
                             '<div class="prod-name">' + prod.name + '</div>' +
                             '<div class="prod-price">' + parseInt(prod.price || 0).toLocaleString() + '₮</div>' +
+                            (prod.description ? '<div class="prod-desc">' + prod.description + '</div>' : '') +
                             '<div class="stats-container">' +
+                                statusBadge +
                                 '<span class="stat-badge stat-category">🏷️ ' + (prod.category || 'Гутал') + '</span>' +
+                                '<span class="stat-badge stat-sizes">📏 ' + sizesText + '</span>' +
                                 '<span class="stat-badge stat-views"><i class="fa-regular fa-eye"></i> ' + (prod.views || 0) + '</span>' +
                                 '<span class="stat-badge stat-orders"><i class="fa-solid fa-cart-shopping"></i> ' + (prod.orders || 0) + '</span>' +
                             '</div>' +
                         '</div>' +
-                        '<button class="btn-delete" onclick="window.deleteProduct(\'' + prodId + '\')"><i class="fa-solid fa-trash-can"></i></button>';
+                        '<div class="prod-actions">' +
+                            '<button class="btn-edit" onclick="window.openEditModal(\'' + prodId + '\')"><i class="fa-solid fa-pen-to-square"></i> Засах</button>' +
+                            '<button class="btn-delete" onclick="window.deleteProduct(\'' + prodId + '\')"><i class="fa-solid fa-trash-can"></i></button>' +
+                        '</div>';
                     listDiv.appendChild(row);
                 });
             });
@@ -453,7 +644,15 @@
             var name = document.getElementById("prodName").value.trim();
             var price = document.getElementById("prodPrice").value.trim();
             var category = document.getElementById("prodCategory").value;
+            var description = document.getElementById("prodDesc").value.trim();
+            var status = document.getElementById("prodStatus").value;
             var btn = document.getElementById("btnAddProduct");
+
+            // Сонгогдсон хэмжээг цуглуулах
+            var selectedSizes = [];
+            document.querySelectorAll('input[name="prodSize"]:checked').forEach(cb => {
+                selectedSizes.push(cb.value);
+            });
 
             if (selectedBase64Images.length === 0) { alert("Барааны зургийг оруулна уу!"); return; }
             if (!name || !price) { alert("Нэр болон үнийг оруулна уу!"); return; }
@@ -466,6 +665,9 @@
                 name: name,
                 category: category,
                 price: numericPrice,
+                description: description,
+                status: status,
+                sizes: selectedSizes,
                 views: 0,
                 orders: 0
             }).then(function() {
@@ -475,9 +677,75 @@
                 document.getElementById("uploadStatusText").innerText = "📁 Энд дарж зургуудаа нэмнэ үү";
                 document.getElementById("prodName").value = "";
                 document.getElementById("prodPrice").value = "";
+                document.getElementById("prodDesc").value = "";
+                document.getElementById("prodStatus").value = "in_stock";
+                
+                // Checkbox-уудыг цэвэрлэх
+                document.querySelectorAll('input[name="prodSize"]').forEach(cb => cb.checked = false);
+
                 selectedBase64Images = [];
             }).finally(function() {
                 btn.innerText = "＋ Шинэ бараа нэмэх"; btn.disabled = false;
+            });
+        };
+
+        /* EDIT MODAL СУУРЬ ФУНКЦҮҮД */
+        window.openEditModal = function(prodId) {
+            var prod = allProductsCache[prodId];
+            if(!prod) return;
+
+            document.getElementById("editProdId").value = prodId;
+            document.getElementById("editProdName").value = prod.name || "";
+            document.getElementById("editProdCategory").value = prod.category || "Гутал";
+            document.getElementById("editProdPrice").value = prod.price || 0;
+            document.getElementById("editProdDesc").value = prod.description || "";
+            document.getElementById("editProdStatus").value = prod.status || "in_stock";
+
+            // Хэмжээг тохируулах Checkboxes
+            var currentSizes = prod.sizes || [];
+            document.querySelectorAll('input[name="editProdSize"]').forEach(cb => {
+                cb.checked = currentSizes.includes(cb.value);
+            });
+
+            document.getElementById("editModal").style.display = "flex";
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById("editModal").style.display = "none";
+        };
+
+        window.saveProductEdit = function() {
+            var prodId = document.getElementById("editProdId").value;
+            var name = document.getElementById("editProdName").value.trim();
+            var category = document.getElementById("editProdCategory").value;
+            var price = document.getElementById("editProdPrice").value.toString().trim();
+            var description = document.getElementById("editProdDesc").value.trim();
+            var status = document.getElementById("editProdStatus").value;
+
+            var selectedSizes = [];
+            document.querySelectorAll('input[name="editProdSize"]:checked').forEach(cb => {
+                selectedSizes.push(cb.value);
+            });
+
+            if(!name || !price) {
+                alert("Нэр болон үнийг заавал бичнэ үү!");
+                return;
+            }
+
+            var numericPrice = parseInt(price.replace(/[^0-9]/g, '')) || 0;
+
+            database.ref('products/' + prodId).update({
+                name: name,
+                category: category,
+                price: numericPrice,
+                description: description,
+                status: status,
+                sizes: selectedSizes
+            }).then(() => {
+                alert("Барааны мэдээлэл амжилттай шинэчлэгдлээ! ✨");
+                window.closeEditModal();
+            }).catch((err) => {
+                alert("Алдаа гарлаа: " + err.message);
             });
         };
 

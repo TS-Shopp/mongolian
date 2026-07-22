@@ -158,7 +158,6 @@
             background: #f1f5f9;
         }
 
-        /* 📍 Дэлгүүр үзэх товчны доорх мэдээллийн текст */
         .hero-discount-info {
             margin-top: 12px;
             font-size: 11px;
@@ -282,6 +281,25 @@
             z-index: 1;
         }
 
+        .product-card.out-of-stock {
+            opacity: 0.7;
+        }
+
+        .out-of-stock-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .wishlist-btn { 
             position: absolute; 
             top: 14px; 
@@ -357,14 +375,16 @@
         .size-buttons-group {
             display: flex;
             gap: 4px;
+            flex-wrap: wrap;
         }
 
         .size-btn {
             flex: 1;
+            min-width: 28px;
             background: #161b22;
             border: 1px solid #30363d;
             color: #8b949e;
-            padding: 3px 0;
+            padding: 3px 4px;
             border-radius: 4px;
             font-size: 10px;
             font-weight: 700;
@@ -402,6 +422,13 @@
             align-items: center; 
             justify-content: center; 
             gap: 3px; 
+        }
+
+        .btn-buy:disabled, .btn-cart:disabled {
+            background: #21262d !important;
+            color: #6e7681 !important;
+            border-color: #30363d !important;
+            cursor: not-allowed;
         }
 
         .btn-cart { 
@@ -450,7 +477,13 @@
             font-size: 22px; 
             cursor: pointer; 
             color: #6e7681; 
+            z-index: 10;
         }
+
+        .product-detail-img { width: 100%; height: 230px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid #21262d; cursor: pointer; }
+        .product-detail-title { font-size: 16px; font-weight: 800; color: #ffffff; margin-bottom: 4px; }
+        .product-detail-price { font-size: 18px; font-weight: 900; color: #10b981; margin-bottom: 12px; }
+        .product-detail-description { background: #060709; padding: 12px; border-radius: 10px; border: 1px solid #161a23; font-size: 13px; color: #cbd5e1; line-height: 1.5; margin-bottom: 14px; white-space: pre-line; }
 
         .price-details { 
             background-color: #060709; 
@@ -753,6 +786,29 @@
         </div>
     </main>
 
+    <div id="productDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="window.closeDetailModal()">&times;</span>
+            <img id="detailImg" class="product-detail-img" src="" alt="Барааны зураг" title="Зураг дээр дарж томруулж харна уу">
+            <h2 id="detailTitle" class="product-detail-title">Барааны нэр</h2>
+            <div id="detailPrice" class="product-detail-price">0₮</div>
+            
+            <div class="size-selection-wrapper" style="margin-bottom: 12px;">
+                <div class="size-label">Хэмжээ сонгох:</div>
+                <div class="size-buttons-group" id="detailSizeButtons">
+                    </div>
+            </div>
+
+            <div style="font-size: 11px; font-weight: 700; color: #8b949e; margin-bottom: 4px; text-transform: uppercase;">Бүтээгдэхүүний тайлбар:</div>
+            <div id="detailDescription" class="product-detail-description">Тайбар байхгүй.</div>
+
+            <div class="btn-group">
+                <button type="button" class="btn-buy" id="detailBuyBtn"><i class="fa-solid fa-bag-shopping"></i> Захиалах</button>
+                <button type="button" class="btn-cart" id="detailCartBtn">Сагслах</button>
+            </div>
+        </div>
+    </div>
+
     <div id="orderModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="window.closeModal()">&times;</span>
@@ -869,7 +925,7 @@
         let currentActiveProdId = "";
         let currentActiveProdName = "";
         let currentActiveProdPrice = 0;
-        let selectedSize = ""; 
+        let selectedDetailSize = "M"; 
         let allProductsArray = []; 
         let currentImagesArray = [];
         let currentImageIndex = 0;
@@ -896,6 +952,16 @@
                 }
                 window.renderProducts(allProductsArray); 
             });
+
+            window.onclick = function(event) {
+                const pDetailModal = document.getElementById("productDetailModal");
+                const orderModal = document.getElementById("orderModal");
+                const imgModal = document.getElementById("imagePreviewModal");
+                
+                if (event.target === pDetailModal) window.closeDetailModal();
+                if (event.target === orderModal) window.closeModal();
+                if (event.target === imgModal) window.closeImagePreview();
+            };
         };
 
         window.updateCartCount = function() {
@@ -906,6 +972,18 @@
             }
         };
 
+        // Админаас ирсэн хэмжээний датаг форматад оруулах туслах функц
+        function getParsedSizes(prod) {
+            if (prod.sizes && Array.isArray(prod.sizes) && prod.sizes.length > 0) {
+                return prod.sizes;
+            } else if (prod.sizes && typeof prod.sizes === 'string') {
+                return prod.sizes.split(',').map(s => s.trim()).filter(s => s);
+            } else if (prod.size) {
+                return [prod.size];
+            }
+            return ['M']; // Байхгүй бол стандарт сонголт
+        }
+
         window.selectSize = function(btn, size, event) {
             if (event) event.stopPropagation();
             const parent = btn.parentElement;
@@ -915,11 +993,17 @@
             btn.closest('.product-card').setAttribute('data-selected-size', size);
         };
 
-        window.addToCart = function(name, price, imgUrl, prodId, btnElem, event) {
-            if (event) event.stopPropagation(); 
+        window.selectModalSize = function(btn, size) {
+            selectedDetailSize = size;
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('.size-btn');
+            buttons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        };
 
-            const card = btnElem ? btnElem.closest('.product-card') : null;
-            const chosenSize = card ? (card.getAttribute('data-selected-size') || 'M') : 'M';
+        window.addToCart = function(name, price, imgUrl, prodId, chosenSize, event) {
+            if (event) event.stopPropagation(); 
+            chosenSize = chosenSize || 'M';
 
             let safeImg = (imgUrl && imgUrl.startsWith('http')) ? imgUrl : '';
 
@@ -942,16 +1026,8 @@
                 window.updateCartCount();
                 alert(name + " (" + chosenSize + ") сагсанд амжилттай нэмэгдлээ! 🛒");
             } catch (e) {
-                console.error("Storage Error Caught:", e);
                 localStorage.removeItem('cart');
-                cart = [{ 
-                    id: prodId, 
-                    name: name, 
-                    price: parseInt(price) || 0, 
-                    image: safeImg, 
-                    size: chosenSize, 
-                    quantity: 1 
-                }];
+                cart = [{ id: prodId, name: name, price: parseInt(price) || 0, image: safeImg, size: chosenSize, quantity: 1 }];
                 localStorage.setItem('cart', JSON.stringify(cart));
                 window.updateCartCount();
                 alert(name + " сагсанд нэмэгдлээ!");
@@ -973,6 +1049,7 @@
                 var prod = item.data || {};
                 
                 var prodName = prod.name ? String(prod.name) : 'Нэргүй бараа';
+                var isOutOfStock = prod.status === 'out_of_stock';
                 
                 var rawPrice = (prod.price !== undefined && prod.price !== null) ? String(prod.price) : "0";
                 var numericPrice = parseInt(rawPrice.replace(/[^0-9]/g, '')) || 0;
@@ -990,9 +1067,12 @@
                     imagesArray = [imgUrl];
                 }
 
+                // Хэмжээг админаас динамикаар авна
+                var availableSizes = getParsedSizes(prod);
+
                 var card = document.createElement("div");
-                card.className = "product-card";
-                card.setAttribute('data-selected-size', 'M');
+                card.className = "product-card" + (isOutOfStock ? " out-of-stock" : "");
+                card.setAttribute('data-selected-size', availableSizes[0]);
 
                 var wishBtn = document.createElement("button");
                 wishBtn.className = "wishlist-btn";
@@ -1002,11 +1082,13 @@
                 var clickableArea = document.createElement("div");
                 clickableArea.className = "product-clickable-area";
                 clickableArea.onclick = function() {
-                    try {
-                        window.openImagePreview(encodeURIComponent(JSON.stringify(imagesArray)), prodName, prodId);
-                    } catch(e) { console.error(e); }
+                    window.openProductDetailModal(prodId);
                 };
+                
+                var badgeHtml = isOutOfStock ? '<div class="out-of-stock-badge">Дууссан</div>' : '';
+
                 clickableArea.innerHTML = 
+                    badgeHtml +
                     '<img src="' + imgUrl + '" alt="' + prodName.replace(/"/g, '&quot;') + '">' +
                     '<div class="product-info">' +
                         '<h3 class="product-title">' + prodName + '</h3>' +
@@ -1015,14 +1097,15 @@
 
                 var sizeWrapper = document.createElement("div");
                 sizeWrapper.className = "size-selection-wrapper";
+                
+                var sizeButtonsHtml = availableSizes.map(function(s, index) {
+                    var isSelected = (index === 0) ? 'selected' : '';
+                    return '<button type="button" class="size-btn ' + isSelected + '" onclick="window.selectSize(this, \'' + s + '\', event)">' + s + '</button>';
+                }).join('');
+
                 sizeWrapper.innerHTML = 
                     '<div class="size-label">Хэмжээ сонгох:</div>' +
-                    '<div class="size-buttons-group">' +
-                        '<button type="button" class="size-btn" onclick="window.selectSize(this, \'XS\', event)">XS</button>' +
-                        '<button type="button" class="size-btn" onclick="window.selectSize(this, \'S\', event)">S</button>' +
-                        '<button type="button" class="size-btn selected" onclick="window.selectSize(this, \'M\', event)">M</button>' +
-                        '<button type="button" class="size-btn" onclick="window.selectSize(this, \'L\', event)">L</button>' +
-                    '</div>';
+                    '<div class="size-buttons-group">' + sizeButtonsHtml + '</div>';
 
                 var btnGroup = document.createElement("div");
                 btnGroup.className = "btn-group";
@@ -1030,18 +1113,30 @@
                 var buyBtn = document.createElement("button");
                 buyBtn.type = "button";
                 buyBtn.className = "btn-buy";
-                buyBtn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Захиалах';
-                buyBtn.onclick = function(e) {
-                    window.openModal(prodId, prodName, numericPrice, e);
-                };
+                if (isOutOfStock) {
+                    buyBtn.disabled = true;
+                    buyBtn.innerHTML = 'Дууссан';
+                } else {
+                    buyBtn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Захиалах';
+                    buyBtn.onclick = function(e) {
+                        var chosenSize = card.getAttribute('data-selected-size') || availableSizes[0];
+                        window.openModal(prodId, prodName, numericPrice, chosenSize, e);
+                    };
+                }
 
                 var cartBtn = document.createElement("button");
                 cartBtn.type = "button";
                 cartBtn.className = "btn-cart";
-                cartBtn.textContent = "Сагслах";
-                cartBtn.onclick = function(e) {
-                    window.addToCart(prodName, numericPrice, imgUrl, prodId, this, e);
-                };
+                if (isOutOfStock) {
+                    cartBtn.disabled = true;
+                    cartBtn.textContent = "Дууссан";
+                } else {
+                    cartBtn.textContent = "Сагслах";
+                    cartBtn.onclick = function(e) {
+                        var chosenSize = card.getAttribute('data-selected-size') || availableSizes[0];
+                        window.addToCart(prodName, numericPrice, imgUrl, prodId, chosenSize, e);
+                    };
+                }
 
                 btnGroup.appendChild(buyBtn);
                 btnGroup.appendChild(cartBtn);
@@ -1055,14 +1150,92 @@
             });
         };
 
+        window.openProductDetailModal = function(prodId) {
+            var item = allProductsArray.find(p => p.id === prodId);
+            if (!item) return;
+
+            var prod = item.data;
+            var prodName = prod.name || 'Нэргүй бараа';
+            var numericPrice = parseInt(prod.price) || 0;
+            var description = prod.description || prod.desc || "Энэхүү бүтээгдэхүүнд одоогоор нэмэлт тайлбар оруулаагүй байна.";
+            var isOutOfStock = prod.status === 'out_of_stock';
+
+            var imgUrl = 'https://via.placeholder.com/300';
+            var imagesArray = [];
+            if (Array.isArray(prod.images) && prod.images.length > 0) {
+                imgUrl = prod.images[0];
+                imagesArray = prod.images;
+            } else if (prod.image) {
+                imgUrl = prod.image;
+                imagesArray = [prod.image];
+            } else {
+                imagesArray = [imgUrl];
+            }
+
+            // Дэлгэрэнгүй цонхны хэмжээнүүдийг динамикаар тохируулах
+            var detailSizeGroup = document.getElementById("detailSizeButtons");
+            detailSizeGroup.innerHTML = "";
+
+            var modalSizes = getParsedSizes(prod);
+            selectedDetailSize = modalSizes[0];
+
+            modalSizes.forEach(function(s, idx) {
+                var btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "size-btn" + (idx === 0 ? " selected" : "");
+                btn.innerText = s;
+                btn.onclick = function() { window.selectModalSize(this, s); };
+                detailSizeGroup.appendChild(btn);
+            });
+
+            document.getElementById("detailImg").src = imgUrl;
+            document.getElementById("detailImg").onclick = function() {
+                window.openImagePreview(encodeURIComponent(JSON.stringify(imagesArray)), prodName, prodId);
+            };
+
+            document.getElementById("detailTitle").innerText = prodName;
+            document.getElementById("detailPrice").innerText = numericPrice.toLocaleString() + "₮";
+            document.getElementById("detailDescription").innerText = description;
+
+            var buyBtn = document.getElementById("detailBuyBtn");
+            var cartBtn = document.getElementById("detailCartBtn");
+
+            if (isOutOfStock) {
+                buyBtn.disabled = true;
+                buyBtn.innerHTML = 'Зарагдаж дууссан';
+                cartBtn.disabled = true;
+                cartBtn.innerText = 'Дууссан';
+            } else {
+                buyBtn.disabled = false;
+                buyBtn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Захиалах';
+                buyBtn.onclick = function(e) {
+                    window.closeDetailModal();
+                    window.openModal(prodId, prodName, numericPrice, selectedDetailSize, e);
+                };
+
+                cartBtn.disabled = false;
+                cartBtn.innerText = 'Сагслах';
+                cartBtn.onclick = function(e) {
+                    window.addToCart(prodName, numericPrice, imgUrl, prodId, selectedDetailSize, e);
+                };
+            }
+
+            document.getElementById("productDetailModal").style.display = "flex";
+
+            var viewRef = database.ref('products/' + prodId + '/views');
+            viewRef.transaction(function(v) { return (v || 0) + 1; });
+        };
+
+        window.closeDetailModal = function() {
+            document.getElementById("productDetailModal").style.display = "none";
+        };
+
         window.openImagePreview = function(encodedImages, title, prodId) {
             currentImagesArray = JSON.parse(decodeURIComponent(encodedImages));
             currentImageIndex = 0;
             currentActiveTitle = title;
             updatePreviewDOM();
             document.getElementById("imagePreviewModal").style.display = "flex";
-            var viewRef = database.ref('products/' + prodId + '/views');
-            viewRef.transaction(function(v) { return (v || 0) + 1; });
         };
 
         function updatePreviewDOM() {
@@ -1095,10 +1268,11 @@
                 window.renderProducts(allProductsArray);
                 return;
             }
+            var catLower = category.toLowerCase();
             var filtered = allProductsArray.filter(function(item) {
                 var name = item.data.name ? item.data.name.toLowerCase() : "";
                 var cat = item.data.category ? item.data.category.toLowerCase() : "";
-                return name.includes(category) || cat.includes(category);
+                return name.includes(catLower) || cat.includes(catLower);
             });
             window.renderProducts(filtered);
         };
@@ -1108,12 +1282,11 @@
             btn.classList.toggle('active');
         };
 
-        window.openModal = function(prodId, name, price, event) {
+        window.openModal = function(prodId, name, price, chosenSize, event) {
             if (event) event.stopPropagation();
             currentActiveProdId = prodId;
             
-            const card = event.target ? event.target.closest('.product-card') : null;
-            const chosenSize = card ? card.getAttribute('data-selected-size') : 'M';
+            chosenSize = chosenSize || 'M';
             currentActiveProdName = name + " (Хэмжээ: " + chosenSize + ")";
             currentActiveProdPrice = parseInt(price) || 0;
             
@@ -1161,7 +1334,7 @@
             formData.append("photo", file);
             formData.append("caption", textMessage);
 
-            var submitBtn = document.querySelector(".btn-close-modal");
+            var submitBtn = document.querySelector("#orderModal .btn-close-modal");
             submitBtn.innerText = "Илгээж байна...";
             submitBtn.disabled = true;
 
