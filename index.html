@@ -925,7 +925,7 @@
         let currentActiveProdId = "";
         let currentActiveProdName = "";
         let currentActiveProdPrice = 0;
-        let selectedDetailSize = "M"; 
+        let selectedDetailSize = ""; 
         let allProductsArray = []; 
         let currentImagesArray = [];
         let currentImageIndex = 0;
@@ -981,7 +981,7 @@
             } else if (prod.size) {
                 return [prod.size];
             }
-            return ['M']; // Байхгүй бол стандарт сонголт
+            return ['']; // Байхгүй бол стандарт сонголт
         }
 
         window.selectSize = function(btn, size, event) {
