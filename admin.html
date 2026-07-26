@@ -88,6 +88,29 @@
         .btn-back:hover { background: #161b22; }
         h2 { font-size: 20px; font-weight: 800; color: #ffffff; }
 
+        /* Сайт руу орсон хүний тоог харуулах карт */
+        .site-visit-card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .site-visit-title {
+            font-size: 12px;
+            color: #8b949e;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .site-visit-count {
+            font-size: 32px;
+            font-weight: 800;
+            color: #38bdf8;
+            margin-top: 4px;
+        }
+
         .admin-box { 
             background-color: #0d1117; 
             border: 1px solid #21262d; 
@@ -339,6 +362,11 @@
             <h2>T&S АДМИН ПАНЕЛЬ</h2>
         </div>
 
+        <div class="site-visit-card">
+            <div class="site-visit-title"><i class="fa-solid fa-eye"></i> Дэлгүүрт орж ирсэн нийт хүн</div>
+            <div class="site-visit-count" id="siteTotalVisits">0</div>
+        </div>
+
         <div class="admin-box">
             <div class="form-group">
                 <label>Бүтээгдэхүүний зургууд оруулах</label>
@@ -528,8 +556,17 @@
         function showAdminPanel() {
             document.getElementById("loginOverlay").style.display = "none";
             document.getElementById("adminMainContent").style.display = "block";
+            loadSiteVisits(); // Дэлгүүрт орсон тоог унших
             loadProducts();
             loadOrders();
+        }
+
+        // Дэлгүүрт орж ирсэн нийт зочдын тоог Firebase-аас татах функц
+        function loadSiteVisits() {
+            database.ref('site_visits').on('value', function(snapshot) {
+                var visits = snapshot.val() || 0;
+                document.getElementById('siteTotalVisits').innerText = visits.toLocaleString();
+            });
         }
 
         window.handleImageSelect = function(input) {
@@ -784,7 +821,6 @@
 
         window.completeOrder = function(orderId, productId) {
             if(confirm("Энэ захиалгыг хүргэгдсэн гэж хаах уу?")) {
-                // Хэрэв productId захиалгад байвал барааны үлдэгдлээс хасна
                 if (productId) {
                     database.ref('products/' + productId).transaction(function(product) {
                         if (product) {
@@ -792,7 +828,6 @@
                             var newStock = currentStock > 0 ? currentStock - 1 : 0;
                             product.stock = newStock;
                             
-                            // 0 болбол статусыг дууссан болгоно
                             if (newStock === 0) {
                                 product.status = 'out_of_stock';
                             }
